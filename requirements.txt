@@ -8,5 +8,6 @@ ipyleaflet==0.17.0
 ipysheet==0.5.0
 ipython==8.4.0
 plotly==5.13.0
+pip==23.0.1
 streamlit==1.2.0
 streamlit-extras==0.2.6
