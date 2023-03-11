@@ -9,13 +9,13 @@ from streamlit_extras.badges import badge
 from streamlit_extras.dataframe_explorer import dataframe_explorer
 from streamlit_extras.chart_container import chart_container
 @st.cache_data
-def get_rides(file_path="data/mta_bus_ridership.pkl"):
+def get_rides(file_path="data/mta_bus_ridership.parquet"):
     """Get the MTA bus ridership data"""
     rides = pd.read_parquet(file_path)
     return rides[[ "route","date", "ridership_weekday",'ridership']]
 
 @st.cache_data
-def get_rides_quarterly(file_path="data/mta_bus_ridership_quarterly.pkl"):
+def get_rides_quarterly(file_path="data/mta_bus_ridership_quarterly.parquet"):
     """Get the MTA bus ridership data"""
     rides = pd.read_parquet(file_path)
     return rides[[ "route","date", "ridership_weekday",'quarter_year','ridership']]
