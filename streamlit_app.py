@@ -6,8 +6,13 @@ from datetime import datetime
 from viz import plot_ridership_average, map_bus_routes
 import geopandas as gpd
 from streamlit_extras.badges import badge
-from streamlit_extras.dataframe_explorer import dataframe_explorer
-from streamlit_extras.chart_container import chart_container
+
+
+st.set_page_config(
+layout="wide", 
+page_title="MTA Bus Ridership"
+)
+
 @st.cache_data
 def get_rides(file_path="data/mta_bus_ridership.parquet"):
     """Get the MTA bus ridership data"""
@@ -32,10 +37,7 @@ def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
     return df.to_csv().encode('utf-8')
 
-st.set_page_config(
-    layout="wide", 
-    page_title="MTA Bus Ridership"
-    )
+
 
 
 rides = get_rides_quarterly()
@@ -98,6 +100,6 @@ badge(type="github", name="fedderw")
 
 st.sidebar.write("App created by [Will Fedder](https://linkedin.com/in/fedderw).")
 st.sidebar.write("Data provided by [MDOT MTA](https://www.arcgis.com/apps/dashboards/1bbc19f2abfe4fde94e4c563f5e8371c).") 
-st.sidebar.write("Data extracted using this [script](https://github.com/jamespizzurro/mta-bus-ridership-scraper) authored by James Pizzuro.")
+st.sidebar.write("Data extracted using this [script](https://github.com/jamespizzurro/mta-bus-ridership-scraper) authored by James Pizzurro.")
 
 
