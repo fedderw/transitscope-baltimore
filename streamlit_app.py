@@ -96,8 +96,7 @@ else:
     # Show a message if no routes are selected
     st.warning("Please select at least one route.")
 badge(type="twitter", name="willfedder")
-badge(type="github", name="fedderw")
-
+badge(type="github", name="fedderw/transitscope-baltimore")
 st.sidebar.write("App created by [Will Fedder](https://linkedin.com/in/fedderw).")
 st.sidebar.write("Data provided by [MDOT MTA](https://www.arcgis.com/apps/dashboards/1bbc19f2abfe4fde94e4c563f5e8371c).") 
 st.sidebar.write("Data extracted using this [script](https://github.com/jamespizzurro/mta-bus-ridership-scraper) authored by James Pizzurro.")
