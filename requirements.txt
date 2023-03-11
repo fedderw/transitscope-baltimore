@@ -1,4 +1,4 @@
-click<>=7.1.2
+click<8.0.0
 folium==0.12.1.post1
 geemap==0.17.1
 geopandas==0.11.1
