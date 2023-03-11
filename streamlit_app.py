@@ -83,6 +83,7 @@ if route_numbers:
     # dataframe = (rides[rides["route"].isin(route_numbers)])
     # filtered_dataframe = dataframe_explorer(dataframe)
     # st.dataframe(filtered_dataframe, use_container_width=True)
+    st.write("NOTE: This is quarterly data. The quarterly data is calculated by taking the sum of the total ridership in each quarter, and dividing it by the number of weekdays in that quarter.")
     # Add a download link for the data
     st.download_button(
         label="Download full dataset as CSV",
