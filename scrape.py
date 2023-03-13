@@ -1,141 +1,100 @@
-import asyncio
+from selenium import webdriver
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.keys import Keys
+import time
 import csv
-from pathlib import Path
-
-# Import beautiful soup
-from bs4 import BeautifulSoup
-
 from tqdm import tqdm
-from playwright.async_api import Playwright, async_playwright
 
+def computeCsvStringFromTable(page, tableSelector, shouldIncludeRowHeaders):
+    csvString = page.execute_script("""
+        const table = document.querySelector(arguments[0]);
+        if (!table) {
+            return null;
+        }
 
-async def compute_csv_string_from_table(
-    page, table_selector, should_include_row_headers
-):
-    """
-    It takes a table selector, a boolean indicating whether or not to include the row headers, and
-    returns a CSV string of the table
+        let csvString = "";
+        for (let i = 0; i < table.rows.length; i++) {
+            const row = table.rows[i];
 
-    :param page: the page object that you're working with
-    :param table_selector: The CSS selector for the table you want to scrape
-    :param should_include_row_headers: Whether or not the first row of the table should be included in
-    the CSV string
-    :return: A string of the table in csv format
-    """
-    # Initialize an empty string to store the table in CSV format
-    csv_string = ""
-    # Query the table using the table selector
-    table = await page.query_selector(table_selector)
-    # If the table isn't found, return None
-    if not table:
-        return None
+            if (!arguments[1] && i === 0) {
+                continue;
+            }
 
-    # Query all the rows in the table
-    rows = await table.query_selector_all("tr")
-    # Iterate through the rows
-    for i, row in enumerate(rows):
-        # If the row headers shouldn't be included and this is the first row, skip it
-        if not should_include_row_headers and i == 0:
-            continue
-        # Query all the cells in the row
-        cells = await row.query_selector_all("th,td")
-        # Iterate through the cells
-        for j, cell in enumerate(cells):
-            # Get the text content of the cell
-            cell_text = await cell.inner_text()
-            # Replace any newlines in the cell text with \n
-            formatted_cell_text = cell_text.replace("\n", "\\n").strip()
-            # If the cell text isn't "No Data", add it to the CSV string
-            if formatted_cell_text != "No Data":
-                csv_string += formatted_cell_text
-            # If this is the last cell, add a newline to the CSV string
-            if j == len(cells) - 1:
-                csv_string += "\n"
-            # Otherwise, add a comma to the CSV string
-            else:
-                csv_string += ","
-    # Return the CSV string
-    return csv_string
+            for (let j = 0; j < row.cells.length; j++) {
+                const cell = row.cells[j];
 
+                const formattedCellText = cell.innerText.replace(/\\n/g, '\\\\n').trim();
+                if (formattedCellText !== "No Data") {
+                    csvString += formattedCellText;
+                }
 
-async def main(playwright: Playwright) -> None:
-    browser = await playwright.chromium.launch()
-    page = await browser.new_page()
-    await page.set_viewport_size({"width": 1920, "height": 1080})
-    await page.goto("https://www.mta.maryland.gov/performance-improvement")
+                if (j === row.cells.length - 1) {
+                    csvString += "\\n";
+                } else {
+                    csvString += ",";
+                }
+            }
+        }
+        return csvString;
+    """, tableSelector, shouldIncludeRowHeaders)
+    return csvString
 
-    await page.click("h3#ui-id-5")
+browser = webdriver.Chrome()
+page = browser.get('https://www.mta.maryland.gov/performance-improvement')
+time.sleep(5)
 
-    csv_string = ""
+csvString = ""
 
-    route_select_selector = 'select[name="ridership-select-route"]'
-    route_select_options = await page.evaluate(
-        f'() => Array.from(document.querySelectorAll("{route_select_selector} > option")).map(option => option.value)'
-    )
-    print("routes available:", route_select_options)
+yearSelect = Select(browser.find_element_by_css_selector('select[name="ridership-select-year"]'))
+yearSelectOptions = [option.get_attribute("value") for option in yearSelect.options]
 
-    month_select_selector = 'select[name="ridership-select-month"]'
-    month_select_options = await page.evaluate(
-        f'() => Array.from(document.querySelectorAll("{month_select_selector} > option")).map(option => option.value)'
-    )
-    print("months available:", month_select_options)
+monthSelect = Select(browser.find_element_by_css_selector('select[name="ridership-select-month"]'))
+monthSelectOptions = [option.get_attribute("value") for option in monthSelect.options]
 
-    year_select_selector = 'select[name="ridership-select-year"]'
-    year_select_options = await page.evaluate(
-        f'() => Array.from(document.querySelectorAll("{year_select_selector} > option")).map(option => option.value)'
-    )
-    print("years available:", year_select_options)
+routeSelect = Select(browser.find_element_by_css_selector('select[name="ridership-select-route"]'))
+routeSelectOptions = [option.get_attribute("value") for option in routeSelect.options]
 
-    pbar = tqdm(
-        total=len(month_select_options) * len(year_select_options), ncols=50
-    )
-    has_included_row_headers = True
-    for year_select_option in year_select_options:
-        await page.focus(year_select_selector)
-        await page.select_option(
-            year_select_selector, value=year_select_option
-        )
+print('routes available:', routeSelectOptions)
+print('months available:', monthSelectOptions)
+print('years available:', yearSelectOptions)
 
-        for month_select_option in month_select_options:
-            await page.focus(month_select_selector)
-            await page.select_option(
-                month_select_selector, value=month_select_option
-            )
+progressBar = None
+try:
+    progressBar = tqdm(total=(len(monthSelectOptions) * len(yearSelectOptions)))
+except:
+    progressBar = None
 
-            await page.keyboard.press("Tab")
-            await page.keyboard.press("Tab")
+hasIncludedRowHeaders = True
+for yearSelectOption in yearSelectOptions:
+    yearSelect.select_by_value(yearSelectOption)
+    for monthSelectOption in monthSelectOptions:
+        monthSelect.select_by_value(monthSelectOption)
 
-            await asyncio.gather(
-                page.keyboard.press("Enter"),
-                page.wait_for_selector(
-                    "div#container-ridership-table > table tbody tr"
-                ),
-            )
+        monthSelectElem = browser.find_element_by_css_selector('select[name="ridership-select-month"]')
+        monthSelectElem.send_keys(Keys.TAB)
+        monthSelectElem.send_keys(Keys.TAB)
+        monthSelectElem.send_keys(Keys.ENTER)
 
-            csv_string += await compute_csv_string_from_table(
-                page,
-                "div#container-ridership-table > table",
-                has_included_row_headers,
-            )
+        csvString += computeCsvStringFromTable(browser, 'div#container-ridership-table > table', hasIncludedRowHeaders)
 
-            if has_included_row_headers:
-                has_included_row_headers = False
+        if hasIncludedRowHeaders:
+            hasIncludedRowHeaders = False
 
-            pbar.update(1)
-    pbar.close()
+        if progressBar:
+            progressBar.update(1)
 
-    await browser.close()
+if progressBar:
+    progressBar.close()
 
-    with open("mta-bus-ridership.csv", "w", newline="") as f:
-        writer = csv.writer(f)
-        for line in csv_string.splitlines():
-            writer.writerow(line.split(","))
+browser.quit()
 
+with open('mta-bus-ridership.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    for line in csvString.split('\n'):
+        writer.writerow(line.split(','))
 
-async def scrape_data():
-    async with async_playwright() as playwright:
-        await main(playwright)
-
-
-if __name__ == "__main__":
-    asyncio.run(scrape_data())
+# read csvString from file
+with open('mta-bus-ridership.csv', 'r', newline='') as csvfile:
+    reader = csv.reader(csvfile)
+    for row in reader:
+        print(row)
