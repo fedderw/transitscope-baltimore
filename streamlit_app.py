@@ -10,7 +10,8 @@ from streamlit_extras.badges import badge
 
 st.set_page_config(
 layout="wide", 
-page_title="MTA Bus Ridership"
+page_icon="🚌",
+page_title="Compare MTA Bus Routes by Ridership",
 )
 
 @st.cache_data
@@ -40,19 +41,30 @@ def convert_df(df):
 
 
 
-rides = get_rides_quarterly()
 route_linestrings = get_route_linestrings()
-csv = convert_df(rides)
 # Streamlit app
 st.title("MTA Bus Ridership")
 st.sidebar.title("TransitScope Baltimore")
+freq = "Quarterly"
+if freq == "Quarterly":
+    rides = get_rides_quarterly()
+    csv = convert_df(rides)
+else:
+    rides = get_rides()
+    csv = convert_df(rides)
 # Get the top 5 routes from 2022, group by route number and sum the ridership
 top_5_routes = rides[rides["date"] >= datetime(2022, 1, 1)].groupby("route")["ridership"].sum().sort_values(ascending=False).head(5).reset_index()["route"].tolist()
 print(type(top_5_routes))
 route_numbers = st.sidebar.multiselect(
     "Select routes", list(rides["route"].unique()), default=top_5_routes,
 )
-
+freq=st.sidebar.select("Choose frequency", ["Quarterly", "Monthly"])
+if freq == "Quarterly":
+    rides = get_rides_quarterly()
+    csv = convert_df(rides)
+else:
+    rides = get_rides()
+    csv = convert_df(rides)
 highlight_routes=st.sidebar.checkbox("Show unselected bus routes on map", value=False)
 
 if route_numbers:
@@ -77,7 +89,10 @@ if route_numbers:
         y_axis_zero = st.sidebar.checkbox("Y-axis starts at 0", value=True)
 
     with col2:
-        
+        # Add 3 blank lines 
+        st.markdown("### ")
+        st.markdown("### ")
+        st.markdown("### ")
         map_bus_routes(route_linestrings, route_numbers,highlight_routes=highlight_routes)
     # st.markdown("### Ridership Data")
     # dataframe = (rides[rides["route"].isin(route_numbers)])

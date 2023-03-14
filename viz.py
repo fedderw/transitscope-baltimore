@@ -114,7 +114,7 @@ def plot_ridership_average(rides, route_numbers, start_date, end_date, y_axis_ze
 
     return fig
 
-def map_bus_routes(gdf, route_numbers, highlight_routes=False, width=800, height=600):
+def map_bus_routes(gdf, route_numbers, highlight_routes=False, width=400, height=400):
     
     # Get the data for the route
     route = gdf[gdf["route"].isin(route_numbers)]
@@ -125,6 +125,8 @@ def map_bus_routes(gdf, route_numbers, highlight_routes=False, width=800, height
     )
     # Use a minimal basemap
     m.add_basemap("CartoDB.DarkMatter")
+    # Turn off the toolbar
+    m.toolbar = False
     # Show the route highlighted in red, then plot all the other routes in gray
     if highlight_routes:
         non_highlighted_routes = gdf[~gdf["route"].isin(route_numbers)]
@@ -159,7 +161,7 @@ def map_bus_routes(gdf, route_numbers, highlight_routes=False, width=800, height
         # Zoom to the bus routes
         m.zoom_to_gdf(route)
         # Display the map
-        return m.to_streamlit()
+        return m.to_streamlit(height=height, width=width)
 
 
 
