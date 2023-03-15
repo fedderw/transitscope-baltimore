@@ -3,10 +3,11 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from datetime import datetime
-from viz import plot_ridership_average, map_bus_routes
+from app.viz import plot_ridership_average, map_bus_routes
+from app.load_data import get_rides,get_rides_quarterly, get_route_linestrings
 import geopandas as gpd
 from streamlit_extras.badges import badge
-
+print("reimpor")
 
 st.set_page_config(
 layout="wide", 
@@ -14,25 +15,8 @@ page_icon="🚌",
 page_title="Compare MTA Bus Routes by Ridership",
 )
 
-@st.cache_data
-def get_rides(file_path="data/mta_bus_ridership.parquet"):
-    """Get the MTA bus ridership data"""
-    rides = pd.read_parquet(file_path)
-    return rides[[ "route","date", "ridership_weekday",'ridership']]
 
-@st.cache_data
-def get_rides_quarterly(file_path="data/mta_bus_ridership_quarterly.parquet"):
-    """Get the MTA bus ridership data"""
-    rides = pd.read_parquet(file_path)
-    return rides[[ "route","date", "ridership_weekday",'quarter_year','ridership']]
 
-@st.cache_data
-def get_route_linestrings(file_path="data/mta_bus_route_linestring.geojson"):
-    """Get the MTA bus ridership data"""
-    gdf = gpd.read_file(file_path)
-    # The geometry column contains many multiline strings	, so we need to convert them to single linestrings
-    
-    return gdf
 @st.cache_data
 def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
@@ -58,7 +42,7 @@ print(type(top_5_routes))
 route_numbers = st.sidebar.multiselect(
     "Select routes", list(rides["route"].unique()), default=top_5_routes,
 )
-freq=st.sidebar.select("Choose frequency", ["Quarterly", "Monthly"])
+freq=st.sidebar.selectbox("Choose frequency", ["Quarterly", "Monthly"])
 if freq == "Quarterly":
     rides = get_rides_quarterly()
     csv = convert_df(rides)

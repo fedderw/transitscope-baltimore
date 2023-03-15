@@ -5,8 +5,8 @@ import streamlit as st
 from datetime import datetime
 import geopandas as gpd
 import leafmap.foliumap as leafmap
-from constants import CITYLINK_COLORS
-
+from app.constants import CITYLINK_COLORS
+import numpy as np
 
 def plot_ridership_average(rides, route_numbers, start_date, end_date, y_axis_zero=True ):
     """
@@ -164,4 +164,88 @@ def map_bus_routes(gdf, route_numbers, highlight_routes=False, width=400, height
         return m.to_streamlit(height=height, width=width)
 
 
+
+def plot_recovery_over_this_quarter(df, route_numbers):
+    df = df[df.route.isin(route_numbers)].copy()
+    @st.cache_data
+    def add_ridership_weekday_2019(df):
+        # Extract quarter and year information from date column
+        
+        df['quarter'] = df['date'].dt.quarter
+        df['year'] = df['date'].dt.year
+
+        # Filter to same quarter in 2019
+        filter_df = df[(df['year'] == 2019) & (df['quarter'] == df['quarter'])].groupby(['route', 'quarter'])[['ridership_weekday']].sum().reset_index()
+
+        # Merge filtered DataFrame with original DataFrame
+        merged_df = df.merge(filter_df, on=['route', 'quarter'], how='left', suffixes=('', '_2019'))
+        merged_df['recovery_over_2019'] = merged_df['ridership_weekday'] / merged_df['ridership_weekday_2019']
+        # Drop any data before April 2020
+        merged_df = merged_df[merged_df['date'] >= '2020-04-01']
+        return merged_df
+    
+    df = add_ridership_weekday_2019(df)
+    
+    fig = px.line(
+        df, x='date', y='recovery_over_2019', color="route"
+    )
+
+    fig.update_layout(title="Recovery over 2019")
+
+    # Add spikelines to the x and y axes
+    fig.update_xaxes(showspikes=True)
+    # fig.update_yaxes(showspikes=True)
+
+    # Show the y-value for all traces when hovering over the chart
+    fig.update_traces(hoverinfo="all")
+
+    # Add labels to the x and y axes
+    fig.update_xaxes(title_text="")
+    fig.update_yaxes(title_text=f"Recovery over 2019")
+
+    # Angle the x-axis labels
+    fig.update_xaxes(tickangle=45)
+
+    # Set background color to white
+    fig.update_layout(plot_bgcolor="white")
+    # # try another color
+    # fig.update_layout(plot_bgcolor="#BDB9B3")
+    fig.update_layout(plot_bgcolor="#363B3D")
+    fig.update_layout(plot_bgcolor="black")
+    
+    # Add an option to only show a certain date range
+    fig.update_layout(
+        xaxis=dict(
+            rangeslider=dict(
+                visible=True
+            ),
+            
+            type="date"
+        )
+    )
+    # iterate through the traces and apply the CITYLINK_COLORS to the plot
+    for i, trace in enumerate(fig.data):
+       if trace.name in CITYLINK_COLORS:
+              trace.marker.color = CITYLINK_COLORS[trace.name]
+              trace.line.color = CITYLINK_COLORS[trace.name]
+              
+    # Remove major gridlines
+    fig.update_yaxes(showgrid=False)
+    # Increase the height of the plot to accommodate the legend
+    fig.update_layout(height=600)
+    fig.update_layout(
+        title="Recovery over 2019",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=0.97,
+            xanchor="right",
+            x=1,
+            # Don't show the legend title
+            title_text="",
+        ),
+        margin=dict(l=50, r=50, t=100, b=50)
+    )
+
+    return fig
 

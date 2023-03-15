@@ -1,18 +1,7 @@
-# CITYLINK_COLORS = {
-#     "CityLink Red": "#FF0000",
-#     "CityLink Blue": "#0000FF",
-#     "CityLink Green": "#008000",
-#     "CityLink Yellow": "#FFFF00",
-#     "CityLink Brown": "#A52A2A",
-#     "CityLink Orange": "#ff6600",
-#     "CityLink Purple": "#800080",
-#     "CityLink Pink": "#FFC0CB",
-#     "CityLink Lime": "#00FF00",
-#     "CityLink Navy": "#000080",
-#     "CityLink Silver": "#C0C0C0",
-#     "CityLink Gold" : "#FFD700",
-#     "Other": "#000000"
-# }
+from pathlib import Path
+
+data_raw_dir = Path("data/raw")
+data_dir = Path("data")
 
 CITYLINK_COLORS = {
     "CityLink Red": "#FF0000",
