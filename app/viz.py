@@ -339,7 +339,7 @@ def plot_bar_top_n_for_daterange(df, top_n=5,col='ridership', daterange=('2020-0
     df = df.groupby(['route']).sum().reset_index().sort_values(by=col, ascending=False)
     df = df.head(top_n)
     fig = px.bar(
-        df.sort_values(by=col, ascending=False), x=col, y="route", orientation="h", 
+        df.sort_values(by=col, ascending=True), x=col, y="route", orientation="h", 
     )
     fig.update_layout(title="Top routes for the selected date range")
     fig.update_layout(plot_bgcolor="white")
