@@ -112,6 +112,7 @@ def plot_ridership_average(rides, route_numbers, start_date, end_date, y_axis_ze
         ),
         margin=dict(l=50, r=50, t=100, b=50)
     )
+    fig.update_layout(hovermode="x unified")
 
     return fig
 
@@ -182,25 +183,99 @@ def map_bus_routes(gdf: gpd.GeoDataFrame, route_numbers: List[str], highlight_ro
 
 
 
-def plot_recovery_over_this_quarter(df, route_numbers, ):
-    df = df[df.route.isin(route_numbers)]
+# def plot_recovery_over_this_quarter(df, route_numbers, ):
+#     df = df[df.route.isin(route_numbers)]
     
+    
+#     fig = px.line(
+#         df, x='date', y='recovery_over_2019', color="route"
+#     )
+    
+#     # Hover: show the 'recovery_over_2019' value, 'ridership_weekday', and 'ridership_weekday_2019'
+#     fig.update_traces(hovertemplate="<b>%{y:.2f}</b><extra></extra>")
+    
+#     fig.update_layout(title="Recovery over 2019")
+
+#     # Add spikelines to the x and y axes
+#     fig.update_xaxes(showspikes=True)
+#     # fig.update_yaxes(showspikes=True)
+
+#     # Show the y-value for all traces when hovering over the chart
+#     fig.update_traces(hoverinfo="all")
+
+#     # Add labels to the x and y axes
+#     fig.update_xaxes(title_text="")
+#     fig.update_yaxes(title_text=f"Recovery over 2019")
+
+#     # Angle the x-axis labels
+#     fig.update_xaxes(tickangle=45)
+
+#     # Set background color to white
+#     fig.update_layout(plot_bgcolor="white")
+#     # # try another color
+#     # fig.update_layout(plot_bgcolor="#BDB9B3")
+#     fig.update_layout(plot_bgcolor="#363B3D")
+#     fig.update_layout(plot_bgcolor="black")
+    
+#     # Add an option to only show a certain date range
+#     fig.update_layout(
+#         xaxis=dict(
+#             rangeslider=dict(
+#                 visible=True
+#             ),
+            
+#             type="date"
+#         )
+#     )
+#     # iterate through the traces and apply the CITYLINK_COLORS to the plot
+#     for i, trace in enumerate(fig.data):
+#        if trace.name in CITYLINK_COLORS:
+#               trace.marker.color = CITYLINK_COLORS[trace.name]
+#               trace.line.color = CITYLINK_COLORS[trace.name]
+              
+#     # Remove major gridlines
+#     fig.update_yaxes(showgrid=False)
+    
+#     # Increase the height of the plot to accommodate the legend
+#     fig.update_layout(height=600)
+#     fig.update_layout(
+#         title="Ridership as a percentage of ridership for the same quarter in 2019",
+#         legend=dict(
+#             orientation="h",
+#             yanchor="bottom",
+#             y=0.97,
+#             xanchor="right",
+#             x=1,
+#             # Don't show the legend title
+#             title_text="",
+#         ),
+#         margin=dict(l=50, r=50, t=100, b=50)
+#     )
+#     # Represent the x-axis as a quarter of the year
+#     fig.update_xaxes(tickformat="%b %Y")
+#     # Fromat y as %
+#     fig.update_yaxes(tickformat=",.0%")
+#     # Start graph at April 2020
+#     fig.update_xaxes(range=['2020-04-01',df.date.max()])
+#     return fig
+
+def plot_recovery_over_this_quarter(df, route_numbers):
+    df = df[df.route.isin(route_numbers)]
+    # Drop dates before January 2021
+    df = df[df.date >= "2021-01-01"]
     
     fig = px.line(
         df, x='date', y='recovery_over_2019', color="route"
     )
-    
+
     # Hover: show the 'recovery_over_2019' value, 'ridership_weekday', and 'ridership_weekday_2019'
-    fig.update_traces(hovertemplate="<b>%{y:.2f}</b><extra></extra>")
-    
+    fig.update_traces(hovertemplate="<b>Route: %{customdata[0]}</b><br>Recovery over 2019: %{y:.2f}<br>Ridership (weekday): %{customdata[1]:.0}<br>Ridership (weekday 2019): %{customdata[2]:.0}<extra></extra>",
+                      customdata=df[['route', 'ridership_weekday', 'ridership_weekday_2019']].values)
+
     fig.update_layout(title="Recovery over 2019")
 
     # Add spikelines to the x and y axes
     fig.update_xaxes(showspikes=True)
-    # fig.update_yaxes(showspikes=True)
-
-    # Show the y-value for all traces when hovering over the chart
-    fig.update_traces(hoverinfo="all")
 
     # Add labels to the x and y axes
     fig.update_xaxes(title_text="")
@@ -211,30 +286,28 @@ def plot_recovery_over_this_quarter(df, route_numbers, ):
 
     # Set background color to white
     fig.update_layout(plot_bgcolor="white")
-    # # try another color
-    # fig.update_layout(plot_bgcolor="#BDB9B3")
     fig.update_layout(plot_bgcolor="#363B3D")
     fig.update_layout(plot_bgcolor="black")
-    
+
     # Add an option to only show a certain date range
     fig.update_layout(
         xaxis=dict(
             rangeslider=dict(
                 visible=True
             ),
-            
             type="date"
         )
     )
-    # iterate through the traces and apply the CITYLINK_COLORS to the plot
+
+    # Iterate through the traces and apply the CITYLINK_COLORS to the plot
     for i, trace in enumerate(fig.data):
        if trace.name in CITYLINK_COLORS:
               trace.marker.color = CITYLINK_COLORS[trace.name]
               trace.line.color = CITYLINK_COLORS[trace.name]
-              
+
     # Remove major gridlines
     fig.update_yaxes(showgrid=False)
-    
+
     # Increase the height of the plot to accommodate the legend
     fig.update_layout(height=600)
     fig.update_layout(
@@ -250,8 +323,39 @@ def plot_recovery_over_this_quarter(df, route_numbers, ):
         ),
         margin=dict(l=50, r=50, t=100, b=50)
     )
-    # Represent the x-axis as a quarter of the year
-    # fig.update_xaxes(tickformat="%b %Y")
 
+    # Represent the x-axis as a quarter of the year
+    fig.update_xaxes(tickformat="%b %Y")
+    # Format y as %
+    fig.update_yaxes(tickformat=",.0%")
+    # Hover mode should be to highlight all traces
+    fig.update_layout(hovermode="x unified")
     return fig
 
+def plot_bar_top_n_for_daterange(df, top_n=5,col='ridership', daterange=('2020-05-01', '2023-01-01')):
+    """Plot a bar chart of the top N routes for a given date range"""
+    daterange = pd.date_range(start=daterange[0], end=daterange[1])
+    df = df[df.date.isin(daterange)]
+    df = df.groupby(['route']).sum().reset_index().sort_values(by=col, ascending=False)
+    df = df.head(top_n)
+    fig = px.bar(
+        df.sort_values(by=col, ascending=False), x=col, y="route", orientation="h", 
+    )
+    fig.update_layout(title="Top routes for the selected date range")
+    fig.update_layout(plot_bgcolor="white")
+    fig.update_layout(plot_bgcolor="#363B3D")
+    fig.update_layout(plot_bgcolor="black")
+    fig.update_layout(
+        title="Top routes for the selected date range",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=0.97,
+            xanchor="right",
+            x=1,
+            # Don't show the legend title
+            title_text="",
+        ),
+        margin=dict(l=50, r=50, t=100, b=50)
+    )
+    return fig

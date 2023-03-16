@@ -5,12 +5,11 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from datetime import datetime
-from app.viz import plot_ridership_average, map_bus_routes, plot_recovery_over_this_quarter
+from app.viz import plot_ridership_average, map_bus_routes, plot_recovery_over_this_quarter, plot_bar_top_n_for_daterange
 from app.load_data import get_rides,get_rides_quarterly, get_route_linestrings
 import geopandas as gpd
 from streamlit_extras.badges import badge
 from streamlit_extras.dataframe_explorer import dataframe_explorer
-st.experimental_rerun()
 st.set_page_config(
 layout="wide", 
 page_icon="🚌",
@@ -68,6 +67,8 @@ if route_numbers:
     fig2 = plot_recovery_over_this_quarter(rides, 
                                 # Do the top 5 routes from 2022
                                 route_numbers=route_numbers, )
+    
+    
     col1, col2 = st.columns([3,2])
     with col1:
         st.plotly_chart(
@@ -76,8 +77,9 @@ if route_numbers:
             # Increase height of chart
             height=900,
             )
-        st.plotly_chart(fig2, use_container_width=True)
         y_axis_zero = st.sidebar.checkbox("Y-axis starts at 0", value=True)
+        st.plotly_chart(fig2, use_container_width=True, )
+
 
     with col2:
         # Add 3 blank lines 
@@ -85,19 +87,25 @@ if route_numbers:
         st.markdown("### ")
         st.markdown("### ")
         map_bus_routes(route_linestrings, route_numbers,highlight_routes=highlight_routes)
-    
-    with st.expander("See explanation"):
+        lines_to_skip = 7
+        for i in range(lines_to_skip):
+            st.markdown("### ")
+        # Add a date selector, NOT another markdown header
+        start_date = st.date_input("Start date", datetime(2022, 1, 1))
+        end_date = st.date_input("End date", datetime(2022, 12, 31))
+        
+        fig3 = plot_bar_top_n_for_daterange(rides,top_n=5,col='ridership',daterange=(start_date,end_date))
+        st.plotly_chart(fig3, use_container_width=True, )
+        
+    # Show the ridership recovery chart
+
+    with st.expander("Data details"):
         st.write("NOTE: This is quarterly data. The quarterly data is calculated by taking the sum of the total ridership in each quarter, and dividing it by the number of weekdays in that quarter.")
         st.write("The routes displayed on the map do not include the supplemental services that provide service to Baltimore City Schools. These riders **are** included in the ridership data.")
         st.markdown(":red[Maps may not reflect service changes. These should be considered as a guide to the general service area only.]")
         # Add a download link for the data
-        st.download_button(
-            label="Download full dataset as CSV",
-            data=csv,
-            file_name='mta_bus_ridership_quarterly.csv',
-            mime='text/csv',
-        )
-   
+        
+
 
 else:
     # Show a message if no routes are selected
@@ -107,6 +115,13 @@ st.markdown("### Ridership Data")
 dataframe = (rides)
 filtered_dataframe = dataframe_explorer(dataframe)
 st.dataframe(filtered_dataframe, use_container_width=True)
+csv = convert_df(filtered_dataframe)
+st.download_button(
+    label="Download full dataset as CSV",
+    data=csv,
+    file_name='mta_bus_ridership.csv',
+    mime='text/csv',
+)
 
 badge(type="twitter", name="willfedder")
 badge(type="github", name="fedderw/transitscope-baltimore")
@@ -114,4 +129,8 @@ st.sidebar.write("App created by [Will Fedder](https://linkedin.com/in/fedderw).
 st.sidebar.write("Data provided by [MDOT MTA](https://www.arcgis.com/apps/dashboards/1bbc19f2abfe4fde94e4c563f5e8371c). To view a geographic system map in PDF format, visit the [MTA's website](https://s3.amazonaws.com/mta-website-staging/mta-website-staging/files/System%20Maps/Geographic_System_Map_08_2022.pdf).") 
 st.sidebar.write("Data extracted using this [script](https://github.com/jamespizzurro/mta-bus-ridership-scraper) authored by James Pizzurro.")
 
+# Wait for user to press a button
+import time
+time.sleep(20)
+st.experimental_rerun()
 
