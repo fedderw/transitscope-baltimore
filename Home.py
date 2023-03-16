@@ -78,7 +78,6 @@ if route_numbers:
             height=900,
             )
         y_axis_zero = st.sidebar.checkbox("Y-axis starts at 0", value=True)
-        st.plotly_chart(fig2, use_container_width=True, )
 
 
     with col2:
@@ -87,16 +86,16 @@ if route_numbers:
         st.markdown("### ")
         st.markdown("### ")
         map_bus_routes(route_linestrings, route_numbers,highlight_routes=highlight_routes)
-        lines_to_skip = 7
-        for i in range(lines_to_skip):
-            st.markdown("### ")
-        # Add a date selector, NOT another markdown header
-        start_date = st.date_input("Start date", datetime(2022, 1, 1))
-        end_date = st.date_input("End date", datetime(2022, 12, 31))
         
-        fig3 = plot_bar_top_n_for_daterange(rides,top_n=5,col='ridership',daterange=(start_date,end_date))
-        st.plotly_chart(fig3, use_container_width=True, )
-        
+    
+    # Add a date selector, NOT another markdown header
+    st.plotly_chart(fig2, use_container_width=True, )
+    st.markdown("### Explore the top routes over a date range")
+    start_date = st.date_input("Start date", datetime(2022, 1, 1))
+    end_date = st.date_input("End date", datetime(2022, 12, 31))
+    
+    fig3 = plot_bar_top_n_for_daterange(rides,top_n=5,col='ridership',daterange=(start_date,end_date))
+    st.plotly_chart(fig3, use_container_width=True, )
     # Show the ridership recovery chart
 
     with st.expander("Data details"):
@@ -111,17 +110,7 @@ else:
     # Show a message if no routes are selected
     st.warning("Please select at least one route.")
     
-st.markdown("### Ridership Data")
-dataframe = (rides)
-filtered_dataframe = dataframe_explorer(dataframe)
-st.dataframe(filtered_dataframe, use_container_width=True)
-csv = convert_df(filtered_dataframe)
-st.download_button(
-    label="Download full dataset as CSV",
-    data=csv,
-    file_name='mta_bus_ridership.csv',
-    mime='text/csv',
-)
+
 
 badge(type="twitter", name="willfedder")
 badge(type="github", name="fedderw/transitscope-baltimore")
