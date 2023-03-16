@@ -1,14 +1,16 @@
+# import os,sys
+# sys.path.append(os.getcwd())
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from datetime import datetime
-from app.viz import plot_ridership_average, map_bus_routes
+from app.viz import plot_ridership_average, map_bus_routes, plot_recovery_over_this_quarter
 from app.load_data import get_rides,get_rides_quarterly, get_route_linestrings
 import geopandas as gpd
 from streamlit_extras.badges import badge
-print("reimpor")
-
+from streamlit_extras.dataframe_explorer import dataframe_explorer
+st.experimental_rerun()
 st.set_page_config(
 layout="wide", 
 page_icon="🚌",
@@ -62,6 +64,10 @@ if route_numbers:
                                 end_date=datetime(2022, 12, 31), 
                                 y_axis_zero = True
                                 )
+    # Add a toggle to set y-axis to start at 0
+    fig2 = plot_recovery_over_this_quarter(rides, 
+                                # Do the top 5 routes from 2022
+                                route_numbers=route_numbers, )
     col1, col2 = st.columns([3,2])
     with col1:
         st.plotly_chart(
@@ -70,6 +76,7 @@ if route_numbers:
             # Increase height of chart
             height=900,
             )
+        st.plotly_chart(fig2, use_container_width=True)
         y_axis_zero = st.sidebar.checkbox("Y-axis starts at 0", value=True)
 
     with col2:
@@ -78,23 +85,29 @@ if route_numbers:
         st.markdown("### ")
         st.markdown("### ")
         map_bus_routes(route_linestrings, route_numbers,highlight_routes=highlight_routes)
-    # st.markdown("### Ridership Data")
-    # dataframe = (rides[rides["route"].isin(route_numbers)])
-    # filtered_dataframe = dataframe_explorer(dataframe)
-    # st.dataframe(filtered_dataframe, use_container_width=True)
-    st.write("NOTE: This is quarterly data. The quarterly data is calculated by taking the sum of the total ridership in each quarter, and dividing it by the number of weekdays in that quarter.")
-    # Add a download link for the data
-    st.download_button(
-        label="Download full dataset as CSV",
-        data=csv,
-        file_name='mta_bus_ridership_quarterly.csv',
-        mime='text/csv',
-    )
+    
+    with st.expander("See explanation"):
+        st.write("NOTE: This is quarterly data. The quarterly data is calculated by taking the sum of the total ridership in each quarter, and dividing it by the number of weekdays in that quarter.")
+        st.write("The routes displayed on the map do not include the supplemental services that provide service to Baltimore City Schools. These riders **are** included in the ridership data.")
+        st.markdown(":red[Maps may not reflect service changes. These should be considered as a guide to the general service area only.]")
+        # Add a download link for the data
+        st.download_button(
+            label="Download full dataset as CSV",
+            data=csv,
+            file_name='mta_bus_ridership_quarterly.csv',
+            mime='text/csv',
+        )
    
 
 else:
     # Show a message if no routes are selected
     st.warning("Please select at least one route.")
+    
+st.markdown("### Ridership Data")
+dataframe = (rides)
+filtered_dataframe = dataframe_explorer(dataframe)
+st.dataframe(filtered_dataframe, use_container_width=True)
+
 badge(type="twitter", name="willfedder")
 badge(type="github", name="fedderw/transitscope-baltimore")
 st.sidebar.write("App created by [Will Fedder](https://linkedin.com/in/fedderw).")
