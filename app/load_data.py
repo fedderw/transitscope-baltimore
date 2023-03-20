@@ -48,7 +48,12 @@ def add_ridership_weekday_2019(
     return merged_df
 
 
-cols = ["route", "date", "ridership_weekday", "ridership", ]
+cols = [
+    "route",
+    "date",
+    "ridership_weekday",
+    "ridership",
+]
 
 
 @st.cache_data
@@ -74,3 +79,8 @@ def get_route_linestrings(file_path="data/mta_bus_route_linestring.geojson"):
     # The geometry column contains many multiline strings	, so we need to convert them to single linestrings
 
     return gdf
+
+
+@st.cache_data
+def get_bus_stops(file_path="data/mta_bus_stops.parquet"):
+    return gpd.read_parquet(file_path)
