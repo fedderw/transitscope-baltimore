@@ -152,7 +152,7 @@ st.sidebar.write(
 st.sidebar.write(
     "Data extracted using this [script](https://github.com/jamespizzurro/mta-bus-ridership-scraper) authored by James Pizzurro."
 )
-
+st.markdown("#")
 
 # Rerun on input
 input("Press Enter to continue...")

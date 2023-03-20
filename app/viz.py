@@ -173,7 +173,7 @@ def map_bus_routes(
                 if x["properties"]["route"] in CITYLINK_COLORS
                 else "gray",
                 "weight": 3,
-                "opacity": 0.7,
+                "opacity": 1,
             },
         )
         # Zoom to the bus routes
@@ -290,12 +290,13 @@ def plot_bar_top_n_for_daterange(
 
 
 def plot_scatter_mapbox(
-    gdf,
-    color=None,
-    color_continuous_scale="Viridis",
-    size_max=15,
-    zoom=10,
-    height=300,
+    gdf: gpd.GeoDataFrame,
+    color: str = None,
+    color_continuous_scale: str = "Viridis",
+    size_max: int = 15,
+    size: str = 'rider_on',
+    zoom: int = 10,
+    height: int = 300,
 ):
     # Drop an y rows with missing values
     gdf = gdf.dropna()
