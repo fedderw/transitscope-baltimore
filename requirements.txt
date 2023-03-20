@@ -7,3 +7,4 @@ plotly==5.13.0
 pip==23.0.1
 streamlit>=1.18.0
 streamlit-extras==0.2.6
+streamlit-plotly-mapbox-events
