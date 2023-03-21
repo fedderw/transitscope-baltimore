@@ -8,10 +8,11 @@ from datetime import datetime
 from app.viz import (
     plot_ridership_average,
     map_bus_routes,
-    plot_recovery_over_this_quarter,
+    # plot_recovery_over_this_quarter,
     plot_bar_top_n_for_daterange,
 )
 from app.load_data import get_rides, get_rides_quarterly, get_route_linestrings
+from app.constants import CITYLINK_COLORS
 import geopandas as gpd
 from streamlit_extras.badges import badge
 from streamlit_extras.dataframe_explorer import dataframe_explorer
@@ -27,6 +28,112 @@ st.set_page_config(
 def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
     return df.to_csv().encode("utf-8")
+
+def plot_recovery_over_this_quarter(df, route_numbers):
+    # Filter DataFrame to specified route numbers and dates on or after January 1, 2021
+    df = df[df.route.isin(route_numbers)]
+    df = df[df.date >= "2021-01-01"]
+
+    # Create line chart
+    fig = px.line(df, x="date", y="recovery_over_2019", color="route")
+
+    # TODO: I can't get the hovertemplate to work with the customdata. Not sure why. I'm sure it's something simple.
+    
+    # Set customdata for each trace
+    # Hover: show the 'recovery_over_2019' value, 'ridership_weekday', and 'ridership_weekday_2019'
+    # fig.update_traces(
+    #     hovertemplate="<b>Route: %{customdata[0]}</b><br>Recovery over 2019: %{y:.2f}<br>Ridership (weekday): %{customdata[1]:.0f}<br>Ridership (weekday 2019): %{customdata[2]:.0f}<extra></extra>",
+    #     customdata=df[
+    #         ["route", "ridership_weekday", "ridership_weekday_2019"]
+    #     ].values,
+    # )
+
+    # st.write(#df is your dataframe
+    # df.shape)
+    # st.write("""#df is your dataframe
+    # df[
+    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
+    # ]""")
+    # st.write(#df is your dataframe
+    # df[
+    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
+    # ])
+    # st.write("""#df is your dataframe
+    # df[
+    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
+    # ].iloc[0]""")
+    # st.write(df[["route", "ridership_weekday", "ridership_weekday_2019"]].iloc[0])
+    # st.write(df[["route", "ridership_weekday", "ridership_weekday_2019"]].iloc[1])
+        
+    # st.write("""df[
+    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
+    # ].values[0]""")
+    # st.write(df[
+    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
+    # ].values[0])
+    # st.write(df[
+    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
+    # ].values[1])
+    # st.write("""df[
+    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
+    # ].values[0][0]""")
+    # st.write(df[
+    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
+    # ].values[0][0])
+    # st.write(df[
+    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
+    # ].values[0][1])
+  
+
+    # Add spikelines to the x and y axes
+    fig.update_xaxes(showspikes=True)
+
+    # Add labels to the x and y axes
+    fig.update_xaxes(title_text="")
+    fig.update_yaxes(title_text=f"Ridership as a % of 2019 benchmark")
+
+    # Angle the x-axis labels
+    fig.update_xaxes(tickangle=45)
+
+    # Set background color to white
+    fig.update_layout(plot_bgcolor="white")
+    fig.update_layout(plot_bgcolor="#363B3D")
+    fig.update_layout(plot_bgcolor="black")
+
+    # Add an option to only show a certain date range
+    fig.update_layout(xaxis=dict(rangeslider=dict(visible=True), type="date"))
+
+    # Iterate through the traces and apply the CITYLINK_COLORS to the plot
+    for i, trace in enumerate(fig.data):
+        if trace.name in CITYLINK_COLORS:
+            trace.marker.color = CITYLINK_COLORS[trace.name]
+            trace.line.color = CITYLINK_COLORS[trace.name]
+    # Remove major gridlines
+    fig.update_yaxes(showgrid=False)
+
+    # Increase the height of the plot to accommodate the legend
+    fig.update_layout(height=600)
+    fig.update_layout(
+        title="Ridership as a percentage of ridership for the same quarter in 2019",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=0.97,
+            xanchor="right",
+            x=1,
+            # Don't show the legend title
+            title_text="",
+        ),
+        margin=dict(l=50, r=50, t=100, b=50),
+    )
+
+    # Represent the x-axis as a quarter of the year
+    fig.update_xaxes(tickformat="%b %Y")
+    # Format y as %
+    fig.update_yaxes(tickformat=",.0%")
+    # Hover mode should be to highlight all traces
+    fig.update_layout(hovermode="x unified")
+    return fig
 
 
 route_linestrings = get_route_linestrings()
