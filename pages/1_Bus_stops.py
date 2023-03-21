@@ -3,6 +3,8 @@ from typing import List, Dict, Tuple, Union, Optional
 
 import geopandas as gpd
 import pandas as pd
+import numpy as np
+import shapely.geometry
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
@@ -29,7 +31,8 @@ st.set_page_config(
     page_title="Explore MTA Bus Stops",
 )
 
-
+# Get the linestrings of the routes served
+routes_linestrings = get_route_linestrings()
 def map_bus_routes(
     gdf: gpd.GeoDataFrame,
     route_numbers: List[str],
@@ -135,6 +138,8 @@ def plot_scatter_mapbox(
         height=height,
         opacity=0.6,
     )
+    
+    
     fig.update_layout(mapbox_style="carto-positron")
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig
@@ -176,8 +181,7 @@ if mapbox_events[0]:
     routes_served = [item for sublist in routes_served for item in sublist]
     routes_served = [x.strip() for x in routes_served]
     # Print the routes served to the Streamlit app
-    # Get the linestrings of the routes served
-    routes_linestrings = get_route_linestrings()
+    
     # routes_linestrings = routes_linestrings[routes_linestrings["route"].isin(routes_served)]
     st.subheader("Routes Served")
 
