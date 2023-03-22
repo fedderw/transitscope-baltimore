@@ -33,6 +33,8 @@ st.set_page_config(
 
 # Get the linestrings of the routes served
 routes_linestrings = get_route_linestrings()
+
+
 def map_bus_routes(
     gdf: gpd.GeoDataFrame,
     route_numbers: List[str],
@@ -82,7 +84,6 @@ def map_bus_routes(
             layer_name="Selected Bus Routes",
             style={"color": "red", "weight": 3, "opacity": 1},
         )
-        
 
         # Zoom to the bus routes
         # Display the map
@@ -98,7 +99,9 @@ def map_bus_routes(
                 "color": CITYLINK_COLORS[x["properties"]["route"]]
                 if x["properties"]["route"] in CITYLINK_COLORS
                 else "white",
-                "weight": 3 if x["properties"]["route"] in CITYLINK_COLORS else 1,
+                "weight": 3
+                if x["properties"]["route"] in CITYLINK_COLORS
+                else 1,
                 "opacity": 0.8,
             },
         )
@@ -114,12 +117,13 @@ def map_bus_routes(
     # Display the map
     return m.to_streamlit(height=height, width=width)
 
+
 def plot_scatter_mapbox(
     gdf: gpd.GeoDataFrame,
     color: str = None,
     color_continuous_scale: str = "plasma",
     size_max: int = 20,
-    size: str = 'rider_on',
+    size: str = "rider_on",
     zoom: int = 10,
     height: int = 300,
 ):
@@ -132,24 +136,25 @@ def plot_scatter_mapbox(
         # color=color,
         # color_continuous_scale=color_continuous_scale,
         size=size,
-        hover_data=["stop_id", "stop_name", "rider_on","routes_served"],
+        hover_data=["stop_id", "stop_name", "rider_on", "routes_served"],
         size_max=size_max,
         zoom=zoom,
         height=height,
         opacity=0.6,
     )
-    
-    
+
     fig.update_layout(mapbox_style="carto-positron")
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig
 
+
 stops = get_bus_stops().dropna()
 # stops.index = stops["stop_id"]
 st.header("Explore Bus Stops")
-st.write("Click on a stop to see the routes served by that stop. The size of the marker is proportional to the number of boardings at the stop. Ridership data is from September 2022-Early February 2023. The routes may not be concurrent with service changes. Fixing those is on the to-do list.")
+st.write(
+    "Click on a stop to see the routes served by that stop. The size of the marker is proportional to the number of boardings at the stop. Ridership data is from September 2022-Early February 2023. The routes may not be concurrent with service changes. Fixing those is on the to-do list."
+)
 fig = plot_scatter_mapbox(stops, color="rider_on", height=600, size_max=35)
-
 
 
 # Get mapbox events (clicks) from the user
@@ -160,7 +165,7 @@ mapbox_events = plotly_mapbox_events(
 # If the user clicks, get the index of the stop
 print(st.session_state.keys())
 
-    
+
 if mapbox_events[0]:
     index_selection = mapbox_events[0][0]["pointIndex"]
     # Use the index to get the stop data from the stops GeoDataFrame
@@ -169,7 +174,12 @@ if mapbox_events[0]:
     print(f"index selection: {index_selection}")
     print(f"series.stop_id: {series.stop_id}")
     print(f"series.name: {series.name}")
-    print(series.stop_id,series.name, series["stop_name"], series["routes_served"])
+    print(
+        series.stop_id,
+        series.name,
+        series["stop_name"],
+        series["routes_served"],
+    )
     # Get the latitude and longitude of the stop
     lat, lon = series["latitude"], series["longitude"]
     # Get the routes served by the stop
@@ -181,7 +191,7 @@ if mapbox_events[0]:
     routes_served = [item for sublist in routes_served for item in sublist]
     routes_served = [x.strip() for x in routes_served]
     # Print the routes served to the Streamlit app
-    
+
     # routes_linestrings = routes_linestrings[routes_linestrings["route"].isin(routes_served)]
     st.subheader("Routes Served")
 
@@ -201,4 +211,4 @@ if mapbox_events[0]:
         st.dataframe(series, use_container_width=True)
 
 # for key in st.session_state.keys():
-    # st.write(key)
+# st.write(key)

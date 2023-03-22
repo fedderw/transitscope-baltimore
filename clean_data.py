@@ -31,6 +31,18 @@ from dataclasses import dataclass, field
 import datetime as dt
 import calendar
 
+def get_business_days(row):
+    # Get the first day of the month
+    first_day = dt.datetime(row["date"].year, row["date"].month, 1)
+    # Get the last day of the month
+    last_day = dt.datetime(
+        row["date"].year,
+        row["date"].month,
+        calendar.monthrange(row["date"].year, row["date"].month)[1],
+    )
+    # Get the number of business days in the month
+    business_days = pd.bdate_range(first_day, last_day).shape[0]
+    return business_days
 
 def clean_ridership_data():
     filepath = Path("../data/raw/mta-bus-ridership.csv")

@@ -29,6 +29,7 @@ def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
     return df.to_csv().encode("utf-8")
 
+
 def plot_recovery_over_this_quarter(df, route_numbers):
     # Filter DataFrame to specified route numbers and dates on or after January 1, 2021
     df = df[df.route.isin(route_numbers)]
@@ -38,7 +39,7 @@ def plot_recovery_over_this_quarter(df, route_numbers):
     fig = px.line(df, x="date", y="recovery_over_2019", color="route")
 
     # TODO: I can't get the hovertemplate to work with the customdata. Not sure why. I'm sure it's something simple.
-    
+
     # Set customdata for each trace
     # Hover: show the 'recovery_over_2019' value, 'ridership_weekday', and 'ridership_weekday_2019'
     # fig.update_traces(
@@ -64,7 +65,7 @@ def plot_recovery_over_this_quarter(df, route_numbers):
     # ].iloc[0]""")
     # st.write(df[["route", "ridership_weekday", "ridership_weekday_2019"]].iloc[0])
     # st.write(df[["route", "ridership_weekday", "ridership_weekday_2019"]].iloc[1])
-        
+
     # st.write("""df[
     #     ["route", "ridership_weekday", "ridership_weekday_2019"]
     # ].values[0]""")
@@ -83,7 +84,6 @@ def plot_recovery_over_this_quarter(df, route_numbers):
     # st.write(df[
     #     ["route", "ridership_weekday", "ridership_weekday_2019"]
     # ].values[0][1])
-  
 
     # Add spikelines to the x and y axes
     fig.update_xaxes(showspikes=True)

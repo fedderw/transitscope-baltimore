@@ -198,7 +198,6 @@ def plot_recovery_over_this_quarter(df, route_numbers):
     )
     return None
 
-    
 
 def plot_bar_top_n_for_daterange(
     df, top_n=5, col="ridership", daterange=("2020-05-01", "2023-01-01")
@@ -237,4 +236,3 @@ def plot_bar_top_n_for_daterange(
         margin=dict(l=50, r=50, t=100, b=50),
     )
     return fig
-
