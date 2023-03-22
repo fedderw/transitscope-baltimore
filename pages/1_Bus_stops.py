@@ -126,22 +126,25 @@ def plot_scatter_mapbox(
         gdf,
         lat=gdf.geometry.y,
         lon=gdf.geometry.x,
-        color=color,
-        color_continuous_scale=color_continuous_scale,
+        # color=color,
+        # color_continuous_scale=color_continuous_scale,
         size=size,
+        hover_data=["stop_id", "stop_name", "rider_on","routes_served"],
         size_max=size_max,
         zoom=zoom,
         height=height,
+        opacity=0.6,
     )
     fig.update_layout(mapbox_style="carto-positron")
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig
+
 stops = get_bus_stops().dropna()
 # stops.index = stops["stop_id"]
 st.header("Explore Bus Stops")
 st.write("Click on a stop to see the routes served by that stop. The size of the marker is proportional to the number of boardings at the stop. Ridership data is from September 2022-Early February 2023. The routes may not be concurrent with service changes. Fixing those is on the to-do list.")
-fig = plot_scatter_mapbox(stops, color="rider_on", zoom=10, height=600, size_max=35)
-# Update color scale
+fig = plot_scatter_mapbox(stops, color="rider_on", height=600, size_max=35)
+
 
 
 # Get mapbox events (clicks) from the user
