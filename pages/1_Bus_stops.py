@@ -20,7 +20,6 @@ from app.load_data import (
 )
 from app.viz import (
     plot_ridership_average,
-    map_bus_routes,
     plot_recovery_over_this_quarter,
     plot_bar_top_n_for_daterange,
 )
@@ -122,7 +121,7 @@ def plot_scatter_mapbox(gdf: gpd.GeoDataFrame, **kwargs):
         opacity=0.6,
         **kwargs,
     )
-    fig.update_traces(marker=dict(color='#FF5F1F'))
+    # fig.update_traces(marker=dict(color='#FF5F1F'))
     fig.update_layout(mapbox_style="carto-darkmatter")
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig
@@ -138,9 +137,11 @@ fig = plot_scatter_mapbox(
     stops,
     height=600,
     size_max=30,
-    hover_data=["stop_id", "stop_name", "rider_on", "routes_served"],
+    hover_data=["stop_id", "stop_name", "rider_on", "routes_served","shelter"],
     size="rider_on",
     zoom=12,
+    color="shelter",
+    color_discrete_map={"Yes": "purple", "No": "orange"},
 )
 
 
