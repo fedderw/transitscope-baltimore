@@ -33,7 +33,7 @@ def plot_ridership_average(
         The plotly figure
     """
     date_col = "date"
-    title = f"Average Weekday Ridership by Route over Time"
+    title = f"ARidership by Route over Time"
 
     # Convert start_date and end_date to datetime64[ns]
     start_date = pd.to_datetime(start_date)
@@ -48,7 +48,7 @@ def plot_ridership_average(
     ]
 
     # Plot the ridership over time
-    fig = px.line(route, x=date_col, y="ridership_weekday", color="route")
+    fig = px.line(route, x=date_col, y="ridership", color="route")
 
     fig.update_layout(title=title)
 
@@ -61,7 +61,7 @@ def plot_ridership_average(
 
     # Add labels to the x and y axes
     fig.update_xaxes(title_text="")
-    fig.update_yaxes(title_text=f"Average Weekday ridership")
+    fig.update_yaxes(title_text=f"Ridership")
 
     # Angle the x-axis labels
     fig.update_xaxes(tickangle=45)
@@ -75,7 +75,7 @@ def plot_ridership_average(
 
     if y_axis_zero:
         # Start the y-axis at 0
-        y_max = route["ridership_weekday"].max()
+        y_max = route["ridership"].max()
         # Let's add 10% to the max y-value
         y_max = y_max + y_max * 0.1
         fig.update_yaxes(range=[0, y_max])

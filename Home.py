@@ -37,54 +37,6 @@ def plot_recovery_over_this_quarter(df, route_numbers):
     # Create line chart
     fig = px.line(df, x="date", y="recovery_over_2019", color="route")
 
-    # TODO: I can't get the hovertemplate to work with the customdata. Not sure why. I'm sure it's something simple.
-    
-    # Set customdata for each trace
-    # Hover: show the 'recovery_over_2019' value, 'ridership_weekday', and 'ridership_weekday_2019'
-    # fig.update_traces(
-    #     hovertemplate="<b>Route: %{customdata[0]}</b><br>Recovery over 2019: %{y:.2f}<br>Ridership (weekday): %{customdata[1]:.0f}<br>Ridership (weekday 2019): %{customdata[2]:.0f}<extra></extra>",
-    #     customdata=df[
-    #         ["route", "ridership_weekday", "ridership_weekday_2019"]
-    #     ].values,
-    # )
-
-    # st.write(#df is your dataframe
-    # df.shape)
-    # st.write("""#df is your dataframe
-    # df[
-    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
-    # ]""")
-    # st.write(#df is your dataframe
-    # df[
-    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
-    # ])
-    # st.write("""#df is your dataframe
-    # df[
-    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
-    # ].iloc[0]""")
-    # st.write(df[["route", "ridership_weekday", "ridership_weekday_2019"]].iloc[0])
-    # st.write(df[["route", "ridership_weekday", "ridership_weekday_2019"]].iloc[1])
-        
-    # st.write("""df[
-    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
-    # ].values[0]""")
-    # st.write(df[
-    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
-    # ].values[0])
-    # st.write(df[
-    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
-    # ].values[1])
-    # st.write("""df[
-    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
-    # ].values[0][0]""")
-    # st.write(df[
-    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
-    # ].values[0][0])
-    # st.write(df[
-    #     ["route", "ridership_weekday", "ridership_weekday_2019"]
-    # ].values[0][1])
-  
-
     # Add spikelines to the x and y axes
     fig.update_xaxes(showspikes=True)
 
@@ -114,7 +66,7 @@ def plot_recovery_over_this_quarter(df, route_numbers):
     # Increase the height of the plot to accommodate the legend
     fig.update_layout(height=600)
     fig.update_layout(
-        title="Ridership as a percentage of ridership for the same quarter in 2019",
+        title="Ridership as a percentage of ridership for the same period in 2019",
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -140,7 +92,7 @@ route_linestrings = get_route_linestrings()
 # Streamlit app
 st.title("MTA Bus Ridership")
 st.sidebar.title("TransitScope Baltimore")
-freq = "Quarterly"
+freq = "Monthly"
 if freq == "Quarterly":
     rides = get_rides_quarterly()
     csv = convert_df(rides)
@@ -163,7 +115,7 @@ route_numbers = st.sidebar.multiselect(
     list(rides["route"].unique()),
     default=top_5_routes,
 )
-freq = st.sidebar.selectbox("Choose frequency", ["Quarterly", "Monthly"])
+freq = st.sidebar.selectbox("Choose frequency", ["Monthly","Quarterly" ])
 if freq == "Quarterly":
     rides = get_rides_quarterly()
     csv = convert_df(rides)
