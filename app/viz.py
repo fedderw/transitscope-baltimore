@@ -33,7 +33,7 @@ def plot_ridership_average(
         The plotly figure
     """
     date_col = "date"
-    title = f"ARidership by Route over Time"
+    title = f"Ridership by Route over Time"
 
     # Convert start_date and end_date to datetime64[ns]
     start_date = pd.to_datetime(start_date)
