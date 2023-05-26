@@ -7,6 +7,7 @@ st.set_page_config(
     layout="wide",
     page_icon="⬇️",
     page_title="Download MTA Bus Ridership Data",
+    theme="light"  # Add this line to enable light mode
 )
 
 
