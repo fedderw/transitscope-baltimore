@@ -78,7 +78,7 @@ def map_bus_routes(
         m.add_gdf(
             non_highlighted_routes,
             layer_name="Other Bus Routes",
-            style={"color": "white", "weight": 1, "opacity": 1},
+            style={"color": "black", "weight": 1, "opacity": 1},
         )
         m.add_gdf(
             route,
