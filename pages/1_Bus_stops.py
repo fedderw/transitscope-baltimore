@@ -32,6 +32,10 @@ st.set_page_config(
 
 # Get the linestrings of the routes served
 routes_linestrings = get_route_linestrings()
+
+# M
+
+
 def map_bus_routes(
     gdf: gpd.GeoDataFrame,
     route_numbers: List[str],
@@ -63,8 +67,8 @@ def map_bus_routes(
 
     # Create a map
     m = leafmap.Map(draw_control=False)
-    # Use a minimal basemap
-    m.add_basemap("CartoDB.DarkMatter")
+    # Use a light basemap
+    m.add_basemap("CartoDB.Positron")  # Change basemap to "CartoDB.Positron"
     # Turn off the toolbar
     m.toolbar = False
     # Show the route highlighted in red, then plot all the other routes in gray
@@ -81,13 +85,7 @@ def map_bus_routes(
             layer_name="Selected Bus Routes",
             style={"color": "red", "weight": 3, "opacity": 1},
         )
-        
-
-        # Zoom to the bus routes
-        # Display the map
     else:
-        # Q: Whare do I find the list of basemaps?
-        # A:
         # Add the bus routes to the map
         m.add_gdf(
             route,
@@ -96,7 +94,7 @@ def map_bus_routes(
             style_function=lambda x: {
                 "color": CITYLINK_COLORS[x["properties"]["route"]]
                 if x["properties"]["route"] in CITYLINK_COLORS
-                else "white",
+                else "black",
                 "weight": 3 if x["properties"]["route"] in CITYLINK_COLORS else 1,
                 "opacity": 0.8,
             },
@@ -113,6 +111,7 @@ def map_bus_routes(
     # Display the map
     return m.to_streamlit(height=height, width=width)
 
+
 def plot_scatter_mapbox(gdf: gpd.GeoDataFrame, **kwargs):
     fig = px.scatter_mapbox(
         gdf,
@@ -122,7 +121,8 @@ def plot_scatter_mapbox(gdf: gpd.GeoDataFrame, **kwargs):
         **kwargs,
     )
     # fig.update_traces(marker=dict(color='#FF5F1F'))
-    fig.update_layout(mapbox_style="carto-darkmatter")
+    # Change mapbox style to "carto-light"
+    fig.update_layout(mapbox_style="carto-light")
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig
 
@@ -137,13 +137,13 @@ fig = plot_scatter_mapbox(
     stops,
     height=600,
     size_max=30,
-    hover_data=["stop_id", "stop_name", "rider_on", "routes_served","shelter"],
+    hover_data=["stop_id", "stop_name",
+                "rider_on", "routes_served", "shelter"],
     size="rider_on",
     zoom=12,
     color="shelter",
     color_discrete_map={"Yes": "purple", "No": "orange"},
 )
-
 
 
 # Get mapbox events (clicks) from the user
@@ -154,7 +154,7 @@ mapbox_events = plotly_mapbox_events(
 # If the user clicks, get the index of the stop
 print(st.session_state.keys())
 
-    
+
 if mapbox_events[0]:
     index_selection = mapbox_events[0][0]["pointIndex"]
     # Use the index to get the stop data from the stops GeoDataFrame
@@ -163,7 +163,8 @@ if mapbox_events[0]:
     print(f"index selection: {index_selection}")
     print(f"series.stop_id: {series.stop_id}")
     print(f"series.name: {series.name}")
-    print(series.stop_id,series.name, series["stop_name"], series["routes_served"])
+    print(series.stop_id, series.name,
+          series["stop_name"], series["routes_served"])
     # Get the latitude and longitude of the stop
     lat, lon = series["latitude"], series["longitude"]
     # Get the routes served by the stop
@@ -175,7 +176,7 @@ if mapbox_events[0]:
     routes_served = [item for sublist in routes_served for item in sublist]
     routes_served = [x.strip() for x in routes_served]
     # Print the routes served to the Streamlit app
-    
+
     # routes_linestrings = routes_linestrings[routes_linestrings["route"].isin(routes_served)]
     st.subheader("Routes Served")
 

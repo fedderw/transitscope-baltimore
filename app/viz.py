@@ -138,7 +138,7 @@ def map_bus_routes(
     # Create a map
     m = leafmap.Map()
     # Use a minimal basemap
-    m.add_basemap("CartoDB.DarkMatter")
+    m.add_basemap("CartoDB.Positron")
     # Turn off the toolbar
     m.toolbar = False
     # Show the route highlighted in red, then plot all the other routes in gray
@@ -148,7 +148,7 @@ def map_bus_routes(
         m.add_gdf(
             non_highlighted_routes,
             layer_name="Other Bus Routes",
-            style={"color": "white", "weight": 1, "opacity": 1},
+            style={"color": "black", "weight": 1, "opacity": 1},
         )
         m.add_gdf(
             route,
@@ -198,7 +198,6 @@ def plot_recovery_over_this_quarter(df, route_numbers):
     )
     return None
 
-    
 
 def plot_bar_top_n_for_daterange(
     df, top_n=5, col="ridership", daterange=("2020-05-01", "2023-01-01")
@@ -221,8 +220,6 @@ def plot_bar_top_n_for_daterange(
     )
     fig.update_layout(title="Top routes for the selected date range")
     fig.update_layout(plot_bgcolor="white")
-    fig.update_layout(plot_bgcolor="#363B3D")
-    fig.update_layout(plot_bgcolor="black")
     fig.update_layout(
         title="Top routes for the selected date range",
         legend=dict(
@@ -237,4 +234,3 @@ def plot_bar_top_n_for_daterange(
         margin=dict(l=50, r=50, t=100, b=50),
     )
     return fig
-

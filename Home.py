@@ -21,7 +21,7 @@ def plot_recovery_over_this_quarter(df, route_numbers):
     fig.update_xaxes(title_text="")
     fig.update_yaxes(title_text="Ridership as a % of 2019 benchmark")
     fig.update_xaxes(tickangle=45)
-    fig.update_layout(plot_bgcolor="#363B3D")
+    fig.update_layout(plot_bgcolor="#F5F5F5")  # Set light background color
 
     fig.update_layout(xaxis=dict(rangeslider=dict(visible=True), type="date"))
 
