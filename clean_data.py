@@ -2,32 +2,10 @@ import pandas as pd
 import numpy as np
 import geopandas as gpd
 from pathlib import Path
-
 import janitor
 import requests
 import json
-import plotly.express as px
-import plotly.graph_objects as go
-from typing import (
-    List,
-    Set,
-    Dict,
-    Tuple,
-    Optional,
-    Callable,
-    Iterator,
-    Union,
-    Optional,
-    Any,
-    cast,
-)
-from typing import Mapping, MutableMapping, Sequence, Iterable
-from abc import ABCMeta, abstractmethod
-from dataclasses import dataclass, field
-
-# import folium
-# import leafmap
-# Import a library so to work with dates
+import os
 import datetime as dt
 import calendar
 
