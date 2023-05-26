@@ -29,7 +29,7 @@ CITYLINK_COLORS = {
     "CityLink Purple": "#B10DC9",
     "CityLink Pink": "#FF80CE",
     "CityLink Lime": "#01FF70",
-    "CityLink Navy": "#001F3F",
+    "CityLink Navy": "#000080",
     "CityLink Silver": "#DDDDDD",
     "CityLink Gold": "#FFD700",
     "Other": "#000000",
