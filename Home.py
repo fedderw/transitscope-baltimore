@@ -5,17 +5,53 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from datetime import datetime
-from app.viz import (
-    plot_ridership_average,
-    map_bus_routes,
-    # plot_recovery_over_this_quarter,
-    plot_bar_top_n_for_daterange,
-)
-from app.load_data import get_rides, get_rides_quarterly, get_route_linestrings
-from app.constants import CITYLINK_COLORS
 import geopandas as gpd
 from streamlit_extras.badges import badge
 from streamlit_extras.dataframe_explorer import dataframe_explorer
+from app.viz import plot_ridership_average, map_bus_routes, plot_bar_top_n_for_daterange
+from app.load_data import get_rides, get_rides_quarterly, get_route_linestrings
+from app.constants import CITYLINK_COLORS
+
+
+def plot_recovery_over_this_quarter(df, route_numbers):
+    df = df[(df.route.isin(route_numbers)) & (df.date >= "2021-01-01")]
+
+    fig = px.line(df, x="date", y="recovery_over_2019", color="route")
+    fig.update_xaxes(showspikes=True)
+    fig.update_xaxes(title_text="")
+    fig.update_yaxes(title_text="Ridership as a % of 2019 benchmark")
+    fig.update_xaxes(tickangle=45)
+    fig.update_layout(plot_bgcolor="#363B3D")
+
+    fig.update_layout(xaxis=dict(rangeslider=dict(visible=True), type="date"))
+
+    for trace in fig.data:
+        if trace.name in CITYLINK_COLORS:
+            trace.marker.color = CITYLINK_COLORS[trace.name]
+            trace.line.color = CITYLINK_COLORS[trace.name]
+
+    fig.update_yaxes(showgrid=False)
+    fig.update_layout(height=600)
+
+    fig.update_layout(
+        title="Ridership as a percentage of ridership for the same period in 2019",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=0.97,
+            xanchor="right",
+            x=1,
+            title_text="",
+        ),
+        margin=dict(l=50, r=50, t=100, b=50),
+    )
+
+    fig.update_xaxes(tickformat="%b %Y")
+    fig.update_yaxes(tickformat=",.0%")
+    fig.update_layout(hovermode="x unified")
+
+    return fig
+
 
 st.set_page_config(
     layout="wide",
@@ -29,66 +65,9 @@ def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
     return df.to_csv().encode("utf-8")
 
-def plot_recovery_over_this_quarter(df, route_numbers):
-    # Filter DataFrame to specified route numbers and dates on or after January 1, 2021
-    df = df[df.route.isin(route_numbers)]
-    df = df[df.date >= "2021-01-01"]
-
-    # Create line chart
-    fig = px.line(df, x="date", y="recovery_over_2019", color="route")
-
-    # Add spikelines to the x and y axes
-    fig.update_xaxes(showspikes=True)
-
-    # Add labels to the x and y axes
-    fig.update_xaxes(title_text="")
-    fig.update_yaxes(title_text=f"Ridership as a % of 2019 benchmark")
-
-    # Angle the x-axis labels
-    fig.update_xaxes(tickangle=45)
-
-    # Set background color to white
-    fig.update_layout(plot_bgcolor="white")
-    fig.update_layout(plot_bgcolor="#363B3D")
-    fig.update_layout(plot_bgcolor="black")
-
-    # Add an option to only show a certain date range
-    fig.update_layout(xaxis=dict(rangeslider=dict(visible=True), type="date"))
-
-    # Iterate through the traces and apply the CITYLINK_COLORS to the plot
-    for i, trace in enumerate(fig.data):
-        if trace.name in CITYLINK_COLORS:
-            trace.marker.color = CITYLINK_COLORS[trace.name]
-            trace.line.color = CITYLINK_COLORS[trace.name]
-    # Remove major gridlines
-    fig.update_yaxes(showgrid=False)
-
-    # Increase the height of the plot to accommodate the legend
-    fig.update_layout(height=600)
-    fig.update_layout(
-        title="Ridership as a percentage of ridership for the same period in 2019",
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=0.97,
-            xanchor="right",
-            x=1,
-            # Don't show the legend title
-            title_text="",
-        ),
-        margin=dict(l=50, r=50, t=100, b=50),
-    )
-
-    # Represent the x-axis as a quarter of the year
-    fig.update_xaxes(tickformat="%b %Y")
-    # Format y as %
-    fig.update_yaxes(tickformat=",.0%")
-    # Hover mode should be to highlight all traces
-    fig.update_layout(hovermode="x unified")
-    return fig
-
 
 route_linestrings = get_route_linestrings()
+
 # Streamlit app
 st.title("MTA Bus Ridership")
 st.sidebar.title("TransitScope Baltimore")
@@ -115,7 +94,7 @@ route_numbers = st.sidebar.multiselect(
     list(rides["route"].unique()),
     default=top_5_routes,
 )
-freq = st.sidebar.selectbox("Choose frequency", ["Monthly","Quarterly" ])
+freq = st.sidebar.selectbox("Choose frequency", ["Monthly", "Quarterly"])
 if freq == "Quarterly":
     rides = get_rides_quarterly()
     csv = convert_df(rides)
