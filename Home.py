@@ -148,18 +148,19 @@ if route_numbers:
         fig2,
         use_container_width=True,
     )
-    st.markdown("### Explore the top routes over a date range")
-    start_date = st.date_input("Start date", datetime(2022, 1, 1))
-    end_date = st.date_input("End date", datetime(2022, 12, 31))
+    # NOTE: This is bad practice to just comment this out
+    # st.markdown("### Explore the top routes over a date range")
+    # start_date = st.date_input("Start date", datetime(2022, 1, 1))
+    # end_date = st.date_input("End date", datetime(2022, 12, 31))
 
-    fig3 = plot_bar_top_n_for_daterange(
-        rides, top_n=5, col="ridership", daterange=(start_date, end_date)
-    )
-    st.plotly_chart(
-        fig3,
-        use_container_width=True,
-    )
-    # Show the ridership recovery chart
+    # fig3 = plot_bar_top_n_for_daterange(
+    #     rides, top_n=5, col="ridership", daterange=(start_date, end_date)
+    # )
+    # st.plotly_chart(
+    #     fig3,
+    #     use_container_width=True,
+    # )
+    # # Show the ridership recovery chart
 
     with st.expander("Data details"):
         st.write(
