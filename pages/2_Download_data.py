@@ -6,8 +6,7 @@ from streamlit_extras.dataframe_explorer import dataframe_explorer
 st.set_page_config(
     layout="wide",
     page_icon="⬇️",
-    page_title="Download MTA Bus Ridership Data",
-    theme="light"  # Add this line to enable light mode
+    page_title="Download MTA Bus Ridership Data"
 )
 
 
