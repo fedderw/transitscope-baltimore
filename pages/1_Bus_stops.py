@@ -121,8 +121,8 @@ def plot_scatter_mapbox(gdf: gpd.GeoDataFrame, **kwargs):
         **kwargs,
     )
     # fig.update_traces(marker=dict(color='#FF5F1F'))
-    # Change mapbox style to "carto-light"
-    fig.update_layout(mapbox_style="carto-light")
+    # Change mapbox style 
+    fig.update_layout(mapbox_style='carto-positron')
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig
 
