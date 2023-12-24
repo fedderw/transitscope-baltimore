@@ -66,12 +66,6 @@ def plot_ridership_average(
     # Angle the x-axis labels
     fig.update_xaxes(tickangle=45)
 
-    # Set background color to white
-    fig.update_layout(plot_bgcolor="white")
-    # # try another color
-    # fig.update_layout(plot_bgcolor="#BDB9B3")
-    fig.update_layout(plot_bgcolor="#363B3D")
-    fig.update_layout(plot_bgcolor="black")
 
     if y_axis_zero:
         # Start the y-axis at 0
