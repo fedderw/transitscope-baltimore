@@ -66,7 +66,6 @@ def plot_ridership_average(
     # Angle the x-axis labels
     fig.update_xaxes(tickangle=45)
 
-
     if y_axis_zero:
         # Start the y-axis at 0
         y_max = route["ridership"].max()

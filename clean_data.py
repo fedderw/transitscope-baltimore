@@ -111,7 +111,6 @@ def capitalize_citylink(match):
 
 
 def process_routes(served_routes):
-
     routes_list = served_routes.split(",")
     modified_routes = [
         re.sub("CityLink ([A-Z]+)", capitalize_citylink, route.strip())

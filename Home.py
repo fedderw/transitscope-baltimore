@@ -8,7 +8,11 @@ from datetime import datetime
 import geopandas as gpd
 from streamlit_extras.badges import badge
 from streamlit_extras.dataframe_explorer import dataframe_explorer
-from app.viz import plot_ridership_average, map_bus_routes, plot_bar_top_n_for_daterange
+from app.viz import (
+    plot_ridership_average,
+    map_bus_routes,
+    plot_bar_top_n_for_daterange,
+)
 from app.load_data import get_rides, get_rides_quarterly, get_route_linestrings
 from app.constants import CITYLINK_COLORS
 
@@ -100,7 +104,9 @@ if freq == "Quarterly":
 else:
     rides = get_rides()
     csv = convert_df(rides)
-highlight_routes = st.sidebar.checkbox("Show unselected bus routes on map", value=False)
+highlight_routes = st.sidebar.checkbox(
+    "Show unselected bus routes on map", value=False
+)
 
 if route_numbers:
     # Add a toggle to set y-axis to start at 0
@@ -179,7 +185,9 @@ else:
 
 badge(type="twitter", name="willfedder")
 badge(type="github", name="fedderw/transitscope-baltimore")
-st.sidebar.write("App created by [Will Fedder](https://linkedin.com/in/fedderw).")
+st.sidebar.write(
+    "App created by [Will Fedder](https://linkedin.com/in/fedderw)."
+)
 st.sidebar.write(
     "Data provided by [MDOT MTA](https://www.arcgis.com/apps/dashboards/1bbc19f2abfe4fde94e4c563f5e8371c). To view a geographic system map in PDF format, visit the [MTA's website](https://s3.amazonaws.com/mta-website-staging/mta-website-staging/files/System%20Maps/Geographic_System_Map_08_2022.pdf)."
 )

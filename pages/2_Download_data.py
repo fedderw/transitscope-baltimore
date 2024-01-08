@@ -4,9 +4,7 @@ from app.load_data import get_rides, get_rides_quarterly, get_route_linestrings
 from streamlit_extras.dataframe_explorer import dataframe_explorer
 
 st.set_page_config(
-    layout="wide",
-    page_icon="⬇️",
-    page_title="Download MTA Bus Ridership Data"
+    layout="wide", page_icon="⬇️", page_title="Download MTA Bus Ridership Data"
 )
 
 
@@ -16,12 +14,27 @@ def convert_df(df):
     return df.to_csv().encode("utf-8")
 
 
-rides = get_rides()[["route","date", "ridership","ridership_weekday","ridership_weekday_2019"]].rename(columns={"ridership_weekday_2019":"ridership_weekday_2019_baseline","business_days":"n_weekdays"})
+rides = get_rides()[
+    [
+        "route",
+        "date",
+        "ridership",
+        "ridership_weekday",
+        "ridership_weekday_2019",
+    ]
+].rename(
+    columns={
+        "ridership_weekday_2019": "ridership_weekday_2019_baseline",
+        "business_days": "n_weekdays",
+    }
+)
 
 st.markdown("## Ridership data by route")
 
 with st.expander("Notes"):
-    st.write("The 'date' column refers to the first day of the month or quarter.")
+    st.write(
+        "The 'date' column refers to the first day of the month or quarter."
+    )
 dataframe = rides
 filtered_dataframe = dataframe_explorer(dataframe)
 st.dataframe(filtered_dataframe, use_container_width=True)

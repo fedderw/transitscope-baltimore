@@ -95,7 +95,9 @@ def map_bus_routes(
                 "color": CITYLINK_COLORS[x["properties"]["route"]]
                 if x["properties"]["route"] in CITYLINK_COLORS
                 else "black",
-                "weight": 3 if x["properties"]["route"] in CITYLINK_COLORS else 1,
+                "weight": 3
+                if x["properties"]["route"] in CITYLINK_COLORS
+                else 1,
                 "opacity": 0.8,
             },
         )
@@ -121,8 +123,8 @@ def plot_scatter_mapbox(gdf: gpd.GeoDataFrame, **kwargs):
         **kwargs,
     )
     # fig.update_traces(marker=dict(color='#FF5F1F'))
-    # Change mapbox style 
-    fig.update_layout(mapbox_style='carto-positron')
+    # Change mapbox style
+    fig.update_layout(mapbox_style="carto-positron")
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig
 
@@ -137,8 +139,13 @@ fig = plot_scatter_mapbox(
     stops,
     height=600,
     size_max=30,
-    hover_data=["stop_id", "stop_name",
-                "rider_on", "routes_served", "shelter"],
+    hover_data=[
+        "stop_id",
+        "stop_name",
+        "rider_on",
+        "routes_served",
+        "shelter",
+    ],
     size="rider_on",
     zoom=12,
     color="shelter",
@@ -163,8 +170,12 @@ if mapbox_events[0]:
     print(f"index selection: {index_selection}")
     print(f"series.stop_id: {series.stop_id}")
     print(f"series.name: {series.name}")
-    print(series.stop_id, series.name,
-          series["stop_name"], series["routes_served"])
+    print(
+        series.stop_id,
+        series.name,
+        series["stop_name"],
+        series["routes_served"],
+    )
     # Get the latitude and longitude of the stop
     lat, lon = series["latitude"], series["longitude"]
     # Get the routes served by the stop
@@ -196,4 +207,4 @@ if mapbox_events[0]:
         st.dataframe(series, use_container_width=True)
 
 # for key in st.session_state.keys():
-    # st.write(key)
+# st.write(key)
