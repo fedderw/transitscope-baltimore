@@ -1,20 +1,19 @@
 # import os,sys
 # sys.path.append(os.getcwd())
+from datetime import datetime
+
+import geopandas as gpd
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-from datetime import datetime
-import geopandas as gpd
 from streamlit_extras.badges import badge
 from streamlit_extras.dataframe_explorer import dataframe_explorer
-from app.viz import (
-    plot_ridership_average,
-    map_bus_routes,
-    plot_bar_top_n_for_daterange,
-)
-from app.load_data import get_rides, get_rides_quarterly, get_route_linestrings
+
 from app.constants import CITYLINK_COLORS
+from app.load_data import get_rides, get_rides_quarterly, get_route_linestrings
+from app.viz import (map_bus_routes, plot_bar_top_n_for_daterange,
+                     plot_ridership_average)
 
 st.set_page_config(
     layout="wide",

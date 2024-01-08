@@ -1,13 +1,14 @@
-import pandas as pd
-import numpy as np
-import geopandas as gpd
-from pathlib import Path
-import janitor
-import requests
+import calendar
+import datetime as dt
 import json
 import os
-import datetime as dt
-import calendar
+from pathlib import Path
+
+import geopandas as gpd
+import janitor
+import numpy as np
+import pandas as pd
+import requests
 
 
 def clean_ridership_data():

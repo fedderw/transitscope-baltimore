@@ -1,8 +1,9 @@
-import pandas as pd
-import geopandas as gpd
-import streamlit as st
-import numpy as np
 from datetime import datetime
+
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+import streamlit as st
 
 
 def add_ridership_weekday_2019(

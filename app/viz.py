@@ -1,13 +1,15 @@
+from datetime import datetime
+from typing import Dict, List, Optional, Tuple, Union
+
+import geopandas as gpd
+import leafmap.foliumap as leafmap
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-from datetime import datetime
-import geopandas as gpd
-import leafmap.foliumap as leafmap
+
 from app.constants import CITYLINK_COLORS
-import numpy as np
-from typing import List, Optional, Tuple, Union, Dict
 
 
 def plot_ridership_average(
