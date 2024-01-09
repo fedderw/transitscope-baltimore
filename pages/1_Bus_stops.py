@@ -10,7 +10,6 @@ import plotly.graph_objects as go
 import shapely.geometry
 import streamlit as st
 from streamlit_plotly_mapbox_events import plotly_mapbox_events
-from ppprint import ppprint 
 from pprint import pprint as print
 from annotated_text import annotated_text
 
