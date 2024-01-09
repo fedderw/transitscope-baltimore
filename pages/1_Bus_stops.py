@@ -12,10 +12,17 @@ import streamlit as st
 from streamlit_plotly_mapbox_events import plotly_mapbox_events
 
 from app.constants import CITYLINK_COLORS
-from app.load_data import (get_bus_stops, get_rides, get_rides_quarterly,
-                           get_route_linestrings)
-from app.viz import (plot_bar_top_n_for_daterange,
-                     plot_recovery_over_this_quarter, plot_ridership_average)
+from app.load_data import (
+    get_bus_stops,
+    get_rides,
+    get_rides_quarterly,
+    get_route_linestrings,
+)
+from app.viz import (
+    plot_bar_top_n_for_daterange,
+    plot_recovery_over_this_quarter,
+    plot_ridership_average,
+)
 
 st.set_page_config(
     layout="wide",

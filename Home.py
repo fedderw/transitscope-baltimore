@@ -12,8 +12,11 @@ from streamlit_extras.dataframe_explorer import dataframe_explorer
 
 from app.constants import CITYLINK_COLORS
 from app.load_data import get_rides, get_rides_quarterly, get_route_linestrings
-from app.viz import (map_bus_routes, plot_bar_top_n_for_daterange,
-                     plot_ridership_average)
+from app.viz import (
+    map_bus_routes,
+    plot_bar_top_n_for_daterange,
+    plot_ridership_average,
+)
 
 st.set_page_config(
     layout="wide",
