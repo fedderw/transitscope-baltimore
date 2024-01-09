@@ -286,6 +286,6 @@ with tab3:
         for index, row in heat_df.iterrows()
     ]
     # Plot it on the map
-    HeatMap(heat_data, width=900, height=800, radius=20, blur=10, min_opacity=0.3).add_to(m)
+    HeatMap(heat_data, width=900, height=800, radius=20, blur=15, min_opacity=0.3).add_to(m)
 
-    st_data = st_folium(m)
+    st_data = st_folium(m,width=900, height=800)
