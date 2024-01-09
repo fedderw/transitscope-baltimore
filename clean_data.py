@@ -5,59 +5,21 @@ import os
 from pathlib import Path
 
 import geopandas as gpd
-import janitor
 import numpy as np
 import pandas as pd
 import requests
 
 
-def clean_ridership_data():
-    filepath = Path("../data/raw/mta-bus-ridership.csv")
-    rides = pd.read_csv(filepath)
-
-    rides = rides.clean_names()
-
-    def convert_date(date):
-        # Get the month and year
-        month, year = date.split("/")
-        # Create a datetime object
-        date = dt.datetime(int(year), int(month), 1)
-        return date
-
-    # Apply the function to the Date column
-    rides["date"] = rides["date"].apply(convert_date)
-
-    # Group the data by route and date
-    rides = rides.groupby(["route", "date"]).sum().reset_index()
+def clean_ridership_data(url_or_path='https://github.com/fedderw/mta-bus-ridership-scraper/blob/a46aaf701bee079e46ad3c715432bfc9be48be14/data/processed/mta_bus_ridership.csv?raw=true'):
+    
+    # Load the data
+    rides = pd.read_csv(url_or_path, parse_dates=["date"])
 
     # Drop route months where  ridership is 0
     rides = rides[rides["ridership"] > 0]
     rides["quarter"] = rides["date"].dt.quarter
 
-    def get_business_days(row):
-        # Get the first day of the month
-        first_day = dt.datetime(row["date"].year, row["date"].month, 1)
-        # Get the last day of the month
-        last_day = dt.datetime(
-            row["date"].year,
-            row["date"].month,
-            calendar.monthrange(row["date"].year, row["date"].month)[1],
-        )
-        # Get the number of business days in the month
-        business_days = pd.bdate_range(first_day, last_day).shape[0]
-        return business_days
-
-    # Apply the function to the dataframe
-    rides["business_days"] = rides.apply(get_business_days, axis=1)
-    # Normalize the ridership by the number of business days in the month
-    rides["ridership_weekday"] = rides["ridership"] / rides["business_days"]
-    # Create a column for the change over one year ago, two years ago, and three years ago
-    for i in range(1, 4):
-        rides[f"change_vs_{i}_years_ago"] = (
-            rides["ridership_weekday"]
-            / rides.groupby("route")["ridership_weekday"].shift(i * 12)
-            - 1
-        )
+    
 
     # Organize the bus data by type
     rides["route_group"] = rides["route"].apply(
@@ -68,11 +30,6 @@ def clean_ridership_data():
         else "CityLink"
         if "CityLink" in x
         else x
-    )
-
-    rides_grouped = rides.groupby(["route_group", "date"]).sum().reset_index()
-    rides_grouped["ridership_weekday"] = (
-        rides_grouped["ridership"] / rides_grouped["business_days"]
     )
 
     rides_quarterly = (
@@ -88,37 +45,26 @@ def clean_ridership_data():
         + rides_quarterly["quarter"].astype(str)
     )
     rides_quarterly["ridership_per_day"] = (
-        rides_quarterly["ridership"] / rides_quarterly["total_days"]
-    )
-    rides_quarterly["ridership_weekday"] = (
-        rides_quarterly["ridership"] / rides_quarterly["business_days"]
+        rides_quarterly["ridership"] / rides_quarterly["num_days_in_month"]
     )
     # Create a column for the change over one year ago, two years ago, and three years ago
     for i in range(1, 4):
         rides_quarterly[f"change_vs_{i}_years_ago"] = (
-            rides_quarterly["ridership_weekday"]
-            / rides_quarterly.groupby("route")["ridership_weekday"].shift(
+            rides_quarterly["ridership_per_day"]
+            / rides_quarterly.groupby("route")["ridership_per_day"].shift(
                 i * 4
             )
             - 1
         )
 
+    return rides, rides_quarterly
 
-import re
-
-
-def capitalize_citylink(match):
-    return "CityLink " + match.group(1).title()
-
-
-def process_routes(served_routes):
-    routes_list = served_routes.split(",")
-    modified_routes = [
-        re.sub("CityLink ([A-Z]+)", capitalize_citylink, route.strip())
-        for route in routes_list
-    ]
-    return ", ".join(modified_routes)
+def write_ridership_data_to_parquet(rides, rides_quarterly, data_dir=Path("data")):
+    # Write the data to parquet
+    rides.to_parquet(data_dir / "mta_bus_ridership.parquet")
+    rides_quarterly.to_parquet(data_dir / "mta_bus_ridership_quarterly.parquet")
 
 
 if __name__ == "__main__":
-    pass
+    rides, rides_quarterly = clean_ridership_data()
+    write_ridership_data_to_parquet(rides, rides_quarterly)

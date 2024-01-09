@@ -6,7 +6,7 @@ import pandas as pd
 import streamlit as st
 
 
-def add_ridership_weekday_2019(
+def add_ridership_per_day_2019(
     df: pd.DataFrame, freq: str = "quarter"
 ) -> pd.DataFrame:
     """Calculate the ridership recovery over 2019 for a given frequency
@@ -30,7 +30,7 @@ def add_ridership_weekday_2019(
     # Filter to same quarter in 2019
     filter_df = (
         df[(df["year"] == 2019) & (df[freq] == df[freq])]
-        .groupby(["route", freq])[["ridership_weekday"]]
+        .groupby(["route", freq])[["ridership_per_day"]]
         .sum()
         .reset_index()
     )
@@ -43,7 +43,7 @@ def add_ridership_weekday_2019(
     merged_df["recovery_over_2019"] = np.where(
         merged_df.date.dt.year < 2020,
         np.nan,
-        merged_df["ridership_weekday"] / merged_df["ridership_weekday_2019"],
+        merged_df["ridership_per_day"] / merged_df["ridership_per_day_2019"],
     )
 
     return merged_df
@@ -52,7 +52,7 @@ def add_ridership_weekday_2019(
 cols = [
     "route",
     "date",
-    "ridership_weekday",
+    "ridership_per_day",
     "ridership",
 ]
 
@@ -61,7 +61,7 @@ cols = [
 def get_rides(file_path="data/mta_bus_ridership.parquet"):
     """Get the MTA bus ridership data"""
     rides = pd.read_parquet(file_path)
-    rides = add_ridership_weekday_2019(rides, freq="month")
+    rides = add_ridership_per_day_2019(rides, freq="month")
     return rides
 
 
@@ -69,7 +69,7 @@ def get_rides(file_path="data/mta_bus_ridership.parquet"):
 def get_rides_quarterly(file_path="data/mta_bus_ridership_quarterly.parquet"):
     """Get the MTA bus ridership data"""
     rides = pd.read_parquet(file_path)
-    rides = add_ridership_weekday_2019(rides, freq="quarter")
+    rides = add_ridership_per_day_2019(rides, freq="quarter")
     return rides
 
 
