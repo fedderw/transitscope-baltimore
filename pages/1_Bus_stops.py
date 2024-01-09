@@ -12,6 +12,7 @@ import streamlit as st
 from streamlit_plotly_mapbox_events import plotly_mapbox_events
 from ppprint import ppprint 
 from pprint import pprint as print
+from annotated_text import annotated_text
 
 from app.constants import CITYLINK_COLORS
 from app.load_data import (
@@ -163,16 +164,6 @@ fig = plot_scatter_mapbox(
         "latitude",
         "longitude",
     ],
-    # custom_data=[
-    #     # "index",
-    #     "objectid",
-    #     "stop_id",
-    #     "stop_name",
-    #     "rider_on",
-    #     "routes_served",
-    #     "shelter",
-    #     "df_index"
-    # ],
     size="rider_total",
     zoom=10,
     # color="shelter",
@@ -192,31 +183,11 @@ plot_name_holder_clicked = st.empty()
 # plot_name_holder_clicked.write(f"Clicked Point: {mapbox_events[0]}")
 if mapbox_events[0]:
     index_selection = mapbox_events[0][0]["pointIndex"]
-    # ppprint(f"mapbox_events[0][0]: {mapbox_events[0][0]}")
-    # print(f"point index: {index_selection}")
-    # Use the index to get the stop data from the stops GeoDataFrame
-    # series = stops.iloc[index_selection]
-    # series.name = stops.iloc[index_selection]["stop_id"]
-    # print(f"series: {series}")
-    # print(f"index selection: {index_selection}")
-    # print(f"index selection type: {type(index_selection)}")
-    # print(f"index_selection + 1: {index_selection + 1}")
-    # print(f"series.index: {series.index}")
-    # print(f"series.stop_id: {series.stop_id}")
-    # print(f"series.name: {series.name}")
-    # print(f"series.stop_name: {series['stop_name']}")
-
-    # print(
-    #     f"series.routes_served: {series['routes_served']}",
-    # )
     
-    # Try selection the data from the fig object
-    # print(f"{fig.data[0]}")
-    # We can use the index to get the data from the fig object
-    # st.write(fig.data[0].customdata[index_selection])
     print(f"len(fig.data[0].customdata): {len(fig.data[0].customdata)}")
-    # st.write(fig.data[0])
-    print(f"routes_served: {fig.data[0].customdata[index_selection][4]}")
+    print(f"routes_served: {fig.data[0].customdata[index_selection][6]}")
+    # Show a badge with each route served
+    
     print(f"Type of fig.data[0].customdata[index_selection]: {type(fig.data[0].customdata[index_selection])}")
     # Get the latitude and longitude of the stop
     lat, lon = fig.data[0].customdata[index_selection][9], fig.data[0].customdata[index_selection][10]
@@ -228,10 +199,13 @@ if mapbox_events[0]:
     routes_served = [x.split(";") for x in routes_served]
     routes_served = [item for sublist in routes_served for item in sublist]
     routes_served = [x.strip() for x in routes_served]
-    # Print the routes served to the Streamlit app
+    
+    # st.subheader("Routes Served")
+    annotated_text(
+        "Routes Served: ",
+        [(route,"", CITYLINK_COLORS[route] if route in CITYLINK_COLORS else None) for route in routes_served],
+    )
 
-    # routes_linestrings = routes_linestrings[routes_linestrings["route"].isin(routes_served)]
-    st.subheader("Routes Served")
 
     # Plot the map of the routes served
     map = map_bus_routes(
