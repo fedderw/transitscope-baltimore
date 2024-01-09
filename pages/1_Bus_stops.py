@@ -125,7 +125,7 @@ def plot_scatter_mapbox(gdf: gpd.GeoDataFrame, **kwargs):
         **kwargs,
     )
     # fig.update_traces(marker=dict(color='#FF5F1F'))
-    fig.update_traces(marker=dict(color='orange'))
+    fig.update_traces(marker=dict(color='blue'))
     # Change mapbox style
     fig.update_layout(mapbox_style="carto-positron")
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
@@ -153,7 +153,7 @@ st.write(
 fig = plot_scatter_mapbox(
     gdf=stops,
     height=600,
-    size_max=30,
+    # size_max=30,
     hover_data=[
         # "index",
         "objectid",
