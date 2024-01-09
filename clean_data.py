@@ -10,16 +10,15 @@ import pandas as pd
 import requests
 
 
-def clean_ridership_data(url_or_path='https://github.com/fedderw/mta-bus-ridership-scraper/blob/a46aaf701bee079e46ad3c715432bfc9be48be14/data/processed/mta_bus_ridership.csv?raw=true'):
-    
+def clean_ridership_data(
+    url_or_path="https://github.com/fedderw/mta-bus-ridership-scraper/blob/a46aaf701bee079e46ad3c715432bfc9be48be14/data/processed/mta_bus_ridership.csv?raw=true",
+):
     # Load the data
     rides = pd.read_csv(url_or_path, parse_dates=["date"])
 
     # Drop route months where  ridership is 0
     rides = rides[rides["ridership"] > 0]
     rides["quarter"] = rides["date"].dt.quarter
-
-    
 
     # Organize the bus data by type
     rides["route_group"] = rides["route"].apply(
@@ -59,10 +58,15 @@ def clean_ridership_data(url_or_path='https://github.com/fedderw/mta-bus-ridersh
 
     return rides, rides_quarterly
 
-def write_ridership_data_to_parquet(rides, rides_quarterly, data_dir=Path("data")):
+
+def write_ridership_data_to_parquet(
+    rides, rides_quarterly, data_dir=Path("data")
+):
     # Write the data to parquet
     rides.to_parquet(data_dir / "mta_bus_ridership.parquet")
-    rides_quarterly.to_parquet(data_dir / "mta_bus_ridership_quarterly.parquet")
+    rides_quarterly.to_parquet(
+        data_dir / "mta_bus_ridership_quarterly.parquet"
+    )
 
 
 if __name__ == "__main__":

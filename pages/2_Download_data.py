@@ -35,9 +35,7 @@ rides = get_rides()[
 st.markdown("## Ridership data by route")
 
 with st.expander("Notes"):
-    st.write(
-        "The 'date' column refers to the first day of the month."
-    )
+    st.write("The 'date' column refers to the first day of the month.")
 dataframe = rides
 filtered_dataframe = dataframe_explorer(dataframe)
 st.dataframe(filtered_dataframe, use_container_width=True, hide_index=True)

@@ -12,11 +12,8 @@ from streamlit_extras.dataframe_explorer import dataframe_explorer
 
 from app.constants import CITYLINK_COLORS
 from app.load_data import get_rides, get_rides_quarterly, get_route_linestrings
-from app.viz import (
-    map_bus_routes,
-    plot_bar_top_n_for_daterange,
-    plot_ridership_average,
-)
+from app.viz import (map_bus_routes, plot_bar_top_n_for_daterange,
+                     plot_ridership_average)
 
 st.set_page_config(
     layout="wide",
@@ -167,7 +164,9 @@ if route_numbers:
     # # Show the ridership recovery chart
 
     with st.expander("Data details"):
-        st.write("The ridership recovery metric uses average daily ridership for the selected period, and compares it to the average daily ridership for the same period in 2019.")
+        st.write(
+            "The ridership recovery metric uses average daily ridership for the selected period, and compares it to the average daily ridership for the same period in 2019."
+        )
         st.write(
             "NOTE: If quarterly data is selected, The quarterly data is calculated by taking the sum of the total ridership in each quarter, and dividing it by the number of days in that quarter."
         )
@@ -197,4 +196,3 @@ st.sidebar.write(
     "Data extracted using this [script](https://github.com/jamespizzurro/mta-bus-ridership-scraper) authored by James Pizzurro."
 )
 st.markdown("#")
-
