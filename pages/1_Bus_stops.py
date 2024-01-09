@@ -1,6 +1,8 @@
 from datetime import datetime
+from pprint import pprint as print
 from typing import Dict, List, Optional, Tuple, Union
 
+import folium
 import geopandas as gpd
 import leafmap.foliumap as leafmap
 import numpy as np
@@ -9,22 +11,16 @@ import plotly.express as px
 import plotly.graph_objects as go
 import shapely.geometry
 import streamlit as st
-from streamlit_plotly_mapbox_events import plotly_mapbox_events
-from pprint import pprint as print
 from annotated_text import annotated_text
+from folium.plugins import HeatMap
+from streamlit_folium import st_folium
+from streamlit_plotly_mapbox_events import plotly_mapbox_events
 
 from app.constants import CITYLINK_COLORS
-from app.load_data import (
-    get_bus_stops,
-    get_rides,
-    get_rides_quarterly,
-    get_route_linestrings,
-)
-from app.viz import (
-    plot_bar_top_n_for_daterange,
-    plot_recovery_over_this_quarter,
-    plot_ridership_average,
-)
+from app.load_data import (get_bus_stops, get_rides, get_rides_quarterly,
+                           get_route_linestrings)
+from app.viz import (plot_bar_top_n_for_daterange,
+                     plot_recovery_over_this_quarter, plot_ridership_average)
 
 st.set_page_config(
     layout="wide",
@@ -121,108 +117,181 @@ def plot_scatter_mapbox(gdf: gpd.GeoDataFrame, **kwargs):
         gdf,
         lat=gdf.geometry.y,
         lon=gdf.geometry.x,
-        opacity=0.6,
         **kwargs,
     )
     # fig.update_traces(marker=dict(color='#FF5F1F'))
-    fig.update_traces(marker=dict(color='blue'))
     # Change mapbox style
     fig.update_layout(mapbox_style="carto-positron")
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig
 
 
+tab1, tab2, tab3 = st.tabs(["Bus Stops", "Shelters", "Ridership Heatmap"])
+
 stops = get_bus_stops()
 print(f"number of stops: {len(stops)}")
 # stops=stops.dropna().reset_index(drop=True)
 # Map "yes" and "no" to True and False for the shelter column
-stops["shelter"] = stops["shelter"].map({"Yes": True, "No": False}).astype(bool)
+stops["shelter"] = (
+    stops["shelter"].map({"Yes": True, "No": False}).astype(bool)
+)
 # Fill in missing values for the shelter column
 stops["shelter"] = stops["shelter"].fillna(False)
 print(f"number of stops after dropping na: {len(stops)}")
 # Set the index to the stop_id
-stops['df_index'] = stops.index
+stops["df_index"] = stops.index
 stops = stops.set_index("stop_id")
 stops["stop_id"] = stops.index
 # So
-st.header("Explore Bus Stops")
-st.write(
-    "Click on a stop to see the routes served by that stop. The size of the marker is proportional to the number of boardings at the stop. Ridership data is from September 2022-Early February 2023. The routes may not be concurrent with service changes. Fixing those is on the to-do list."
-)
 
-fig = plot_scatter_mapbox(
-    gdf=stops,
-    height=600,
-    # size_max=30,
-    hover_data=[
-        # "index",
-        "objectid",
-        "stop_id",
-        "stop_name",
-        "rider_on",
-        "rider_off",
-        "rider_total",
-        "routes_served",
-        "shelter",
-        "df_index",
-        "latitude",
-        "longitude",
-    ],
-    # size="rider_total",
-    zoom=10,
-    # For some reason, using color only returns an array of length 527 in the customdata, so we can't use it to select routes
-    # color="shelter",
-    # color_discrete_map={True: "green", False: "orange"},
-)
+with tab1:
+    st.header("Explore Bus Stops")
 
-
-# Get mapbox events (clicks) from the user
-mapbox_events = plotly_mapbox_events(
-    fig,
-    click_event=True,
-    key="mapbox_events",
-)
-# If the user clicks, get the index of the stop
-# print(st.session_state.keys())
-plot_name_holder_clicked = st.empty()
-# plot_name_holder_clicked.write(f"Clicked Point: {mapbox_events[0]}")
-if mapbox_events[0]:
-    index_selection = mapbox_events[0][0]["pointIndex"]
-    
-    print(f"len(fig.data[0].customdata): {len(fig.data[0].customdata)}")
-    print(f"routes_served: {fig.data[0].customdata[index_selection][6]}")
-    # Show a badge with each route served
-    
-    print(f"Type of fig.data[0].customdata[index_selection]: {type(fig.data[0].customdata[index_selection])}")
-    # Get the latitude and longitude of the stop
-    lat, lon = fig.data[0].customdata[index_selection][9], fig.data[0].customdata[index_selection][10]
-    # Get the routes served by the stop
-    routes_served = fig.data[0].customdata[index_selection][6]
-    routes_served = routes_served.split(",")
-    routes_served = [x.strip() for x in routes_served]
-    # There are some strings that are separated by semi-colons instead of commas
-    routes_served = [x.split(";") for x in routes_served]
-    routes_served = [item for sublist in routes_served for item in sublist]
-    routes_served = [x.strip() for x in routes_served]
-    
-    # st.subheader("Routes Served")
-    annotated_text(
-        "Routes Served: ",
-        [(route,"", CITYLINK_COLORS[route] if route in CITYLINK_COLORS else None) for route in routes_served],
+    st.write(
+        "Click on a stop to see the routes served by that stop.  Ridership data is from September 2022-Early February 2023. The routes may not be concurrent with service changes. Fixing those is on the to-do list."
     )
 
-
-    # Plot the map of the routes served
-    map = map_bus_routes(
-        routes_linestrings,
-        route_numbers=routes_served,
-        highlight_routes=False,
-        height=500,
-        width=800,
-        bus_stop_x=lon,
-        bus_stop_y=lat,
+    fig = plot_scatter_mapbox(
+        gdf=stops,
+        height=600,
+        # size_max=30,
+        hover_data=[
+            # "index",
+            "objectid",
+            "stop_id",
+            "stop_name",
+            "rider_on",
+            "rider_off",
+            "rider_total",
+            "routes_served",
+            "shelter",
+            "df_index",
+            "latitude",
+            "longitude",
+        ],
+        # size="rider_total",
+        zoom=10,
+        opacity=0.5,
+        # For some reason, using color only returns an array of length 527 in the customdata, so we can't use it to select routes
+        # color="shelter",
+        # color_discrete_map={True: "green", False: "orange"},
     )
+    fig.update_traces(marker=dict(color="blue"))
 
+    # Get mapbox events (clicks) from the user
+    mapbox_events = plotly_mapbox_events(
+        fig,
+        click_event=True,
+        key="mapbox_events",
+    )
+    # If the user clicks, get the index of the stop
+    # print(st.session_state.keys())
+    plot_name_holder_clicked = st.empty()
+    # plot_name_holder_clicked.write(f"Clicked Point: {mapbox_events[0]}")
+    if mapbox_events[0]:
+        index_selection = mapbox_events[0][0]["pointIndex"]
 
-# for key in st.session_state.keys():
-# st.write(key)
+        # print(f"len(fig.data[0].customdata): {len(fig.data[0].customdata)}")
+        # print(f"routes_served: {fig.data[0].customdata[index_selection][6]}")
+        # Show a badge with each route served
+
+        # print(f"Type of fig.data[0].customdata[index_selection]: {type(fig.data[0].customdata[index_selection])}")
+        # Get the latitude and longitude of the stop
+        lat, lon = (
+            fig.data[0].customdata[index_selection][9],
+            fig.data[0].customdata[index_selection][10],
+        )
+        # Get the routes served by the stop
+        routes_served = fig.data[0].customdata[index_selection][6]
+        routes_served = routes_served.split(",")
+        routes_served = [x.strip() for x in routes_served]
+        # There are some strings that are separated by semi-colons instead of commas
+        routes_served = [x.split(";") for x in routes_served]
+        routes_served = [item for sublist in routes_served for item in sublist]
+        routes_served = [x.strip() for x in routes_served]
+
+        # st.subheader("Routes Served")
+        annotated_text(
+            "Routes Served: ",
+            [
+                (
+                    route,
+                    "",
+                    CITYLINK_COLORS[route]
+                    if route in CITYLINK_COLORS
+                    else None,
+                )
+                for route in routes_served
+            ],
+        )
+
+        # Plot the map of the routes served
+        map = map_bus_routes(
+            routes_linestrings,
+            route_numbers=routes_served,
+            highlight_routes=False,
+            height=500,
+            width=800,
+            bus_stop_x=lon,
+            bus_stop_y=lat,
+        )
+
+with tab2:
+    st.header("Explore Shelters")
+    fig2 = plot_scatter_mapbox(
+        gdf=stops,
+        height=600,
+        # size_max=30,
+        hover_data=[
+            "stop_id",
+            "stop_name",
+            "rider_on",
+            "rider_off",
+            "rider_total",
+            "routes_served",
+            "shelter",
+        ],
+        # size="rider_total",
+        zoom=10,
+        opacity=0.5,
+        # For some reason, using color only returns an array of length 527 in the customdata, so we can't use it to select routes
+        color="shelter",
+        color_discrete_map={True: "green", False: "orange"},
+    )
+    fig2
+
+with tab3:
+    st.header("Explore Ridership")
+    st.write(
+        "This is a heatmap of MTA bus ridership by stop.  The data is from September 2022-Early February 2023."
+    )
+    select_column = st.selectbox(
+        "Select a column",
+        [
+            "rider_total",
+            "rider_on",
+            "rider_off",
+        ],
+    )
+    heat_df = stops[["latitude", "longitude", select_column]]
+    # Drop NaN values from the data
+    heat_df = heat_df.dropna(
+        axis=0, subset=["latitude", "longitude", select_column]
+    )
+    m = folium.Map(
+        [stops["latitude"].mean(), stops["longitude"].mean()], zoom_start=10
+    )
+    heat_data = [
+        [row["latitude"], row["longitude"], row[select_column]]
+        for index, row in heat_df.iterrows()
+    ]
+    # Plot it on the map
+    HeatMap(
+        heat_data,
+        radius=20,
+        blur=15,
+        # gradient={0.2: "blue", 0.4: "lime", 0.6: "yellow", 1: "red"},
+        min_opacity=0.3,
+    ).add_to(m)
+
+    st_data = st_folium(m, width=900, height=800)
