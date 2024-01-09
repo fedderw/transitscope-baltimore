@@ -26,7 +26,7 @@ st.set_page_config(
 
 
 def plot_recovery_over_this_quarter(df, route_numbers):
-    df = df[(df.route.isin(route_numbers)) & (df.date >= "2021-01-01")]
+    df = df[(df.route.isin(route_numbers)) & (df.date >= "2020-01-01")]
 
     fig = px.line(df, x="date", y="recovery_over_2019", color="route")
     fig.update_xaxes(showspikes=True)
@@ -83,9 +83,9 @@ if freq == "Quarterly":
 else:
     rides = get_rides()
     csv = convert_df(rides)
-# Get the top 5 routes from 2022, group by route number and sum the ridership
+# Get the top 5 routes from 2023, group by route number and sum the ridership
 top_5_routes = (
-    rides[rides["date"] >= datetime(2022, 1, 1)]
+    rides[rides["date"] >= datetime(2023, 1, 1)]
     .groupby("route")["ridership"]
     .sum()
     .sort_values(ascending=False)
@@ -93,7 +93,6 @@ top_5_routes = (
     .reset_index()["route"]
     .tolist()
 )
-print(type(top_5_routes))
 route_numbers = st.sidebar.multiselect(
     "Select routes",
     list(rides["route"].unique()),
@@ -119,7 +118,7 @@ if route_numbers:
         # Do the top 5 routes from 2022
         route_numbers=route_numbers,
         start_date=datetime(2018, 1, 1),
-        end_date=datetime(2022, 12, 31),
+        end_date=datetime(2023, 12, 31),
         y_axis_zero=True,
     )
     # Add a toggle to set y-axis to start at 0
@@ -168,8 +167,9 @@ if route_numbers:
     # # Show the ridership recovery chart
 
     with st.expander("Data details"):
+        st.write("The ridership recovery metric uses average daily ridership for the selected period, and compares it to the average daily ridership for the same period in 2019.")
         st.write(
-            "NOTE: This is quarterly data. The quarterly data is calculated by taking the sum of the total ridership in each quarter, and dividing it by the number of weekdays in that quarter."
+            "NOTE: If quarterly data is selected, The quarterly data is calculated by taking the sum of the total ridership in each quarter, and dividing it by the number of days in that quarter."
         )
         st.write(
             "The routes displayed on the map do not include the supplemental services that provide service to Baltimore City Schools. These riders **are** included in the ridership data."
@@ -198,6 +198,3 @@ st.sidebar.write(
 )
 st.markdown("#")
 
-# Rerun on input
-input("Press Enter to continue...")
-st.experimental_rerun()
