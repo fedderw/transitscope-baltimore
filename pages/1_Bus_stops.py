@@ -126,6 +126,7 @@ def plot_scatter_mapbox(gdf: gpd.GeoDataFrame, **kwargs):
         **kwargs,
     )
     # fig.update_traces(marker=dict(color='#FF5F1F'))
+    fig.update_traces(marker=dict(color='orange'))
     # Change mapbox style
     fig.update_layout(mapbox_style="carto-positron")
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
@@ -134,7 +135,11 @@ def plot_scatter_mapbox(gdf: gpd.GeoDataFrame, **kwargs):
 
 stops = get_bus_stops()
 print(f"number of stops: {len(stops)}")
-stops=stops.dropna().reset_index(drop=True)
+# stops=stops.dropna().reset_index(drop=True)
+# Map "yes" and "no" to True and False for the shelter column
+stops["shelter"] = stops["shelter"].map({"Yes": True, "No": False}).astype(bool)
+# Fill in missing values for the shelter column
+stops["shelter"] = stops["shelter"].fillna(False)
 print(f"number of stops after dropping na: {len(stops)}")
 # Set the index to the stop_id
 stops['df_index'] = stops.index
@@ -164,10 +169,11 @@ fig = plot_scatter_mapbox(
         "latitude",
         "longitude",
     ],
-    size="rider_total",
+    # size="rider_total",
     zoom=10,
+    # For some reason, using color only returns an array of length 527 in the customdata, so we can't use it to select routes
     # color="shelter",
-    # color_discrete_map={"Yes": "purple", "No": "orange"},
+    # color_discrete_map={True: "green", False: "orange"},
 )
 
 
