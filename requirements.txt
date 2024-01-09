@@ -3,12 +3,9 @@ janitor==0.1.1
 leafmap==0.30.0
 numpy==1.26.3
 pandas==2.1.4
-plotly==5.13.0
 plotly==5.18.0
 Requests==2.31.0
-selenium==4.16.0
 Shapely==1.8.5.post1
 streamlit==1.29.0
 streamlit_extras==0.3.6
 streamlit_plotly_mapboxEvents==0.0.4
-tqdm==4.66.1

@@ -57,7 +57,8 @@ def plot_ridership_average(
     # Add spikelines to the x and y axes
     fig.update_xaxes(showspikes=True)
     # fig.update_yaxes(showspikes=True)
-
+    # Make background white
+    fig.update_layout(plot_bgcolor="white")
     # Show the y-value for all traces when hovering over the chart
     fig.update_traces(hoverinfo="all")
 
@@ -191,6 +192,8 @@ def plot_recovery_over_this_quarter(df, route_numbers):
             ["route", "ridership_weekday", "ridership_weekday_2019"]
         ],
     )
+    # Make background white
+    fig.update_layout(plot_bgcolor="white")
     return None
 
 

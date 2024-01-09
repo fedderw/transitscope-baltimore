@@ -10,12 +10,22 @@ import plotly.graph_objects as go
 import shapely.geometry
 import streamlit as st
 from streamlit_plotly_mapbox_events import plotly_mapbox_events
+from ppprint import ppprint 
+from pprint import pprint as print
+from annotated_text import annotated_text
 
 from app.constants import CITYLINK_COLORS
-from app.load_data import (get_bus_stops, get_rides, get_rides_quarterly,
-                           get_route_linestrings)
-from app.viz import (plot_bar_top_n_for_daterange,
-                     plot_recovery_over_this_quarter, plot_ridership_average)
+from app.load_data import (
+    get_bus_stops,
+    get_rides,
+    get_rides_quarterly,
+    get_route_linestrings,
+)
+from app.viz import (
+    plot_bar_top_n_for_daterange,
+    plot_recovery_over_this_quarter,
+    plot_ridership_average,
+)
 
 st.set_page_config(
     layout="wide",
@@ -116,33 +126,54 @@ def plot_scatter_mapbox(gdf: gpd.GeoDataFrame, **kwargs):
         **kwargs,
     )
     # fig.update_traces(marker=dict(color='#FF5F1F'))
+    fig.update_traces(marker=dict(color='orange'))
     # Change mapbox style
     fig.update_layout(mapbox_style="carto-positron")
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig
 
 
-stops = get_bus_stops().dropna()
+stops = get_bus_stops()
+print(f"number of stops: {len(stops)}")
+# stops=stops.dropna().reset_index(drop=True)
+# Map "yes" and "no" to True and False for the shelter column
+stops["shelter"] = stops["shelter"].map({"Yes": True, "No": False}).astype(bool)
+# Fill in missing values for the shelter column
+stops["shelter"] = stops["shelter"].fillna(False)
+print(f"number of stops after dropping na: {len(stops)}")
+# Set the index to the stop_id
+stops['df_index'] = stops.index
+stops = stops.set_index("stop_id")
+stops["stop_id"] = stops.index
+# So
 st.header("Explore Bus Stops")
 st.write(
     "Click on a stop to see the routes served by that stop. The size of the marker is proportional to the number of boardings at the stop. Ridership data is from September 2022-Early February 2023. The routes may not be concurrent with service changes. Fixing those is on the to-do list."
 )
 
 fig = plot_scatter_mapbox(
-    stops,
+    gdf=stops,
     height=600,
     size_max=30,
     hover_data=[
+        # "index",
+        "objectid",
         "stop_id",
         "stop_name",
         "rider_on",
+        "rider_off",
+        "rider_total",
         "routes_served",
         "shelter",
+        "df_index",
+        "latitude",
+        "longitude",
     ],
-    size="rider_on",
-    zoom=12,
-    color="shelter",
-    color_discrete_map={"Yes": "purple", "No": "orange"},
+    # size="rider_total",
+    zoom=10,
+    # For some reason, using color only returns an array of length 527 in the customdata, so we can't use it to select routes
+    # color="shelter",
+    # color_discrete_map={True: "green", False: "orange"},
 )
 
 
@@ -150,54 +181,49 @@ fig = plot_scatter_mapbox(
 mapbox_events = plotly_mapbox_events(
     fig,
     click_event=True,
+    key="mapbox_events",
 )
 # If the user clicks, get the index of the stop
-print(st.session_state.keys())
-
-
+# print(st.session_state.keys())
+plot_name_holder_clicked = st.empty()
+# plot_name_holder_clicked.write(f"Clicked Point: {mapbox_events[0]}")
 if mapbox_events[0]:
     index_selection = mapbox_events[0][0]["pointIndex"]
-    # Use the index to get the stop data from the stops GeoDataFrame
-    series = stops.iloc[index_selection]
-    # series.name = stops.iloc[index_selection]["stop_id"]
-    print(f"index selection: {index_selection}")
-    print(f"series.stop_id: {series.stop_id}")
-    print(f"series.name: {series.name}")
-    print(
-        series.stop_id,
-        series.name,
-        series["stop_name"],
-        series["routes_served"],
-    )
+    
+    print(f"len(fig.data[0].customdata): {len(fig.data[0].customdata)}")
+    print(f"routes_served: {fig.data[0].customdata[index_selection][6]}")
+    # Show a badge with each route served
+    
+    print(f"Type of fig.data[0].customdata[index_selection]: {type(fig.data[0].customdata[index_selection])}")
     # Get the latitude and longitude of the stop
-    lat, lon = series["latitude"], series["longitude"]
+    lat, lon = fig.data[0].customdata[index_selection][9], fig.data[0].customdata[index_selection][10]
     # Get the routes served by the stop
-    routes_served = series["routes_served"]
+    routes_served = fig.data[0].customdata[index_selection][6]
     routes_served = routes_served.split(",")
     routes_served = [x.strip() for x in routes_served]
     # There are some strings that are separated by semi-colons instead of commas
     routes_served = [x.split(";") for x in routes_served]
     routes_served = [item for sublist in routes_served for item in sublist]
     routes_served = [x.strip() for x in routes_served]
-    # Print the routes served to the Streamlit app
+    
+    # st.subheader("Routes Served")
+    annotated_text(
+        "Routes Served: ",
+        [(route,"", CITYLINK_COLORS[route] if route in CITYLINK_COLORS else None) for route in routes_served],
+    )
 
-    # routes_linestrings = routes_linestrings[routes_linestrings["route"].isin(routes_served)]
-    st.subheader("Routes Served")
 
-    col1, col2 = st.columns([2, 1])
     # Plot the map of the routes served
-    with col1:
-        map = map_bus_routes(
-            routes_linestrings,
-            route_numbers=routes_served,
-            highlight_routes=False,
-            height=500,
-            width=800,
-            bus_stop_x=lon,
-            bus_stop_y=lat,
-        )
-    with col2:
-        st.dataframe(series, use_container_width=True)
+    map = map_bus_routes(
+        routes_linestrings,
+        route_numbers=routes_served,
+        highlight_routes=False,
+        height=500,
+        width=800,
+        bus_stop_x=lon,
+        bus_stop_y=lat,
+    )
+
 
 # for key in st.session_state.keys():
 # st.write(key)
