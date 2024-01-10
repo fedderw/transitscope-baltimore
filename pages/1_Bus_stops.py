@@ -298,6 +298,82 @@ with tab2:
     # st.header("Boardings at Sheltered vs. Unsheltered Stops")
     fig3
     
+    # Creat a new dataframe where each row is identified by a route, a stop, and a shelter. Since each stop can have multiple routes, we need to create a new row for each route
+    route_stop = stops.copy()
+    # Drop geometry column
+    route_stop = route_stop.drop(columns=["geometry"])
+    # Convert from geodataframe to dataframe
+    
+    # We need to split on commas and semicolons
+    route_stop["routes_served"] = route_stop["routes_served"].str.split(",")
+    # st.dataframe(route_stop)
+    route_stop = route_stop.explode("routes_served")
+    # Split on semicolons
+    route_stop["routes_served"] = route_stop["routes_served"].str.split(";")
+    route_stop = route_stop.explode("routes_served")
+    # st.dataframe(route_stop)
+    route_stop["routes_served"] = route_stop["routes_served"].str.strip()
+    
+    # Dictionary mapping short color codes to their corresponding CityLink route names
+    color_to_citylink = {
+        "BL": "CityLink Blue",
+        "BR": "CityLink Brown",
+        "CityLink BLUE": "CityLink Blue",
+        "CityLink NAVY": "CityLink Navy",
+        "CityLink ORANGE": "CityLink Orange",
+        "CityLink RED": "CityLink Red",
+        "CityLink SILVER": "CityLink Silver",
+        "GD": "CityLink Gold",
+        "GR": "CityLink Green",
+        "LM": "CityLink Lime",
+        "NV": "CityLink Navy",
+        "OR": "CityLink Orange",
+        "PK": "CityLink Pink",
+        "PR": "CityLink Purple",
+        "RD": "CityLink Red",
+        "SV": "CityLink Silver",
+        "YW": "CityLink Yellow"
+    }
+
+    # Function to map colors to their full names, keeping unmatched values
+    def map_color_to_citylink(color):
+        return color_to_citylink.get(color, color)
+
+    # Apply the function to the 'routes_served' column
+    route_stop['routes_served'] = route_stop['routes_served'].apply(map_color_to_citylink)
+    # st.dataframe(route_stop)
+
+    # Group by route and shelter
+    grouped_by_route_shelter = route_stop[["routes_served","stop_id", "shelter", ]].groupby(["routes_served"]).sum("shelter").reset_index().sort_values(by="shelter", ascending=False)
+    # Rename the columns
+    grouped_by_route_shelter = grouped_by_route_shelter.rename(columns={"routes_served":"route","shelter": "number_of_sheltered_stops"})
+    # Create a vertical bar chart showing the number of sheltered stops for each route
+    fig4 = px.bar(
+        grouped_by_route_shelter,
+        y="route",
+        x="number_of_sheltered_stops",
+        color="route",
+        color_discrete_map=CITYLINK_COLORS,
+        width=800,
+        height=2000,
+    )
+    fig4.update_layout(showlegend=False)
+    fig4.update_xaxes(title_text="")
+    fig4.update_yaxes(title_text="Number of Sheltered Stops")
+    # Add a title
+    fig4.update_layout(
+        title_text="Number of Sheltered Stops by Route",
+        title_x=0.2,
+        # title_y=0.95,
+    )
+    # iterate through the traces and apply the CITYLINK_COLORS to the plot
+    for i, trace in enumerate(fig4.data):
+        if trace.name in CITYLINK_COLORS:
+            trace.marker.color = CITYLINK_COLORS[trace.name]
+        else:
+            trace.marker.color = "gray"
+    fig4
+    
 
 with tab3:
     st.header("Explore Ridership")
@@ -312,6 +388,9 @@ with tab3:
             "rider_off",
         ],
     )
+    # if no column is selected, default to "rider_total"
+    if not select_column:
+        select_column = "rider_total"
     heat_df = stops[["latitude", "longitude", select_column]]
     # Drop NaN values from the data
     heat_df = heat_df.dropna(
