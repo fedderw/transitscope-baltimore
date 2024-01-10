@@ -238,10 +238,17 @@ with tab1:
 
 with tab2:
     st.header("Explore Shelters")
+    # Create an option to size the points by ridership
+    size_by_ridership = st.checkbox("Size points by boardings")
+    if size_by_ridership:
+        stops_selection = stops[stops["rider_total"] > 0]
+    else:
+        stops_selection = stops
     fig2 = plot_scatter_mapbox(
-        gdf=stops,
+        gdf=stops_selection,
         height=600,
-        # size_max=30,
+        width=800,
+        # size_max=40,
         hover_data=[
             "stop_id",
             "stop_name",
@@ -251,12 +258,12 @@ with tab2:
             "routes_served",
             "shelter",
         ],
-        # size="rider_total",
+        size=stops_selection["rider_on"].values if size_by_ridership else None,
         zoom=10,
         opacity=0.5,
         # For some reason, using color only returns an array of length 527 in the customdata, so we can't use it to select routes
         color="shelter",
-        color_discrete_map={True: "green", False: "orange"},
+        color_discrete_map={True: "blue", False: "orange"},
     )
     fig2
 
