@@ -21,7 +21,7 @@ def download_mta_bus_stops(ridership_period, file_destination):
     stops['ridership_period'] = ridership_period
     stops['download_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     print(stops.head())
-    stops.to_parquet(file_destination, index=False)
+    stops.to_parquet(file_destination)
     print(f"Data saved to {file_destination}")
 
 # Main function to parse arguments and call download function
