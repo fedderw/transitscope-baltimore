@@ -406,7 +406,7 @@ with tab3:
     # Plot it on the map
     HeatMap(
         heat_data,
-        radius=20,
+        radius=25,
         blur=15,
         # gradient={0.2: "blue", 0.4: "lime", 0.6: "yellow", 1: "red"},
         min_opacity=0.3,
