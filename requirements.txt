@@ -1,4 +1,4 @@
-folium==0.12.1.post1
+folium
 geopandas==0.11.1
 janitor==0.1.1
 leafmap==0.30.0
