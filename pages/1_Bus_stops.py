@@ -283,12 +283,19 @@ with tab2:
     fig3.update_layout(showlegend=False)
     fig3.update_xaxes(title_text="Average Daily Boardings, Summer 2023")
     fig3.update_yaxes(title_text="")
+    # Add a title
+    fig3.update_layout(
+        title_text="Daily Boardings at Sheltered vs. Unsheltered Stops, Summer 2023",
+        title_x=0.2,
+        title_y=0.95,
+    )
     # Label the bars to "Sheltered" and "Unsheltered" instead of "True" and "False"
     fig3.update_traces(
         texttemplate="%{y:.2s}",
         textposition="outside",
         textfont=dict(color="black"),
     )
+    # st.header("Boardings at Sheltered vs. Unsheltered Stops")
     fig3
     
 
