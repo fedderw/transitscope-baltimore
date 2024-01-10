@@ -239,9 +239,9 @@ with tab1:
 with tab2:
     st.header("Explore Shelters")
     # Create an option to size the points by ridership
-    size_by_ridership = st.checkbox("Size points by boardings")
+    size_by_ridership = st.checkbox("Size points by average daily boardings")
     if size_by_ridership:
-        stops_selection = stops[stops["rider_total"] > 0]
+        stops_selection = stops[stops["rider_on"] > 0]
     else:
         stops_selection = stops
     fig2 = plot_scatter_mapbox(
