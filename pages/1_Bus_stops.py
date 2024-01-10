@@ -238,6 +238,10 @@ with tab1:
 
 with tab2:
     st.header("Explore Shelters")
+    col1, col2, col3 = st.columns([1, 1, 1])
+    col1.metric("Sheltered", stops["shelter"].sum())
+    col2.metric("Unsheltered", (~stops["shelter"]).sum())
+    col3.metric("Total", len(stops))
     # Create an option to size the points by ridership
     size_by_ridership = st.checkbox("Size points by average daily boardings")
     if size_by_ridership:
@@ -266,6 +270,27 @@ with tab2:
         color_discrete_map={True: "blue", False: "orange"},
     )
     fig2
+    # Create a bar graph comparing the number of boardings at sheltered and unsheltered stops
+    grouped_by_shelter = stops[["shelter", "rider_on"]].groupby("shelter").sum().reset_index()
+    grouped_by_shelter['shelter_text'] = grouped_by_shelter['shelter'].map({True: "Sheltered", False: "Unsheltered"})
+    fig3 = px.bar(
+        grouped_by_shelter,
+        y="shelter_text",
+        x="rider_on",
+        color="shelter_text",
+        color_discrete_map={"Sheltered": "blue", "Unsheltered": "orange"},
+    )
+    fig3.update_layout(showlegend=False)
+    fig3.update_xaxes(title_text="Average Daily Boardings, Summer 2023")
+    fig3.update_yaxes(title_text="")
+    # Label the bars to "Sheltered" and "Unsheltered" instead of "True" and "False"
+    fig3.update_traces(
+        texttemplate="%{y:.2s}",
+        textposition="outside",
+        textfont=dict(color="black"),
+    )
+    fig3
+    
 
 with tab3:
     st.header("Explore Ridership")
