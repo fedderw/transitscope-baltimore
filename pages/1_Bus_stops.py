@@ -148,7 +148,7 @@ with tab1:
     st.header("Explore Bus Stops")
 
     st.write(
-        "Click on a stop to see the routes served by that stop.  Ridership data is from September 2022-Early February 2023. The routes may not be concurrent with service changes. Fixing those is on the to-do list."
+        "Click on a stop to see the routes served by that stop.  Ridership data is from Summer 2023. The routes may not be concurrent with service changes. Fixing those is on the to-do list."
     )
 
     fig = plot_scatter_mapbox(
@@ -270,7 +270,7 @@ with tab2:
 with tab3:
     st.header("Explore Ridership")
     st.write(
-        "This is a heatmap of MTA bus ridership by stop.  The data is from September 2022-Early February 2023."
+        "This is a heatmap of MTA bus ridership by stop.  The data is from Summer 2023."
     )
     select_column = st.selectbox(
         "Select a column",
