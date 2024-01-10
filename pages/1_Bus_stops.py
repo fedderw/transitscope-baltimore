@@ -291,7 +291,7 @@ with tab2:
     )
     # Label the bars to "Sheltered" and "Unsheltered" instead of "True" and "False"
     fig3.update_traces(
-        texttemplate="%{y:.2s}",
+        texttemplate="%{x:.2s}",
         textposition="outside",
         textfont=dict(color="black"),
     )
