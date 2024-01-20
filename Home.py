@@ -30,7 +30,7 @@ def plot_recovery_over_this_quarter(df, route_numbers):
     fig.update_xaxes(title_text="")
     fig.update_yaxes(title_text="Ridership as a % of 2019 benchmark")
     fig.update_xaxes(tickangle=45)
-    # fig.update_layout(plot_bgcolor="#F5F5F5")  # Set light background color
+    fig.update_layout(plot_bgcolor="#F5F5F5")  # Set light background color
 
     fig.update_layout(xaxis=dict(rangeslider=dict(visible=True), type="date"))
 
@@ -73,20 +73,12 @@ route_linestrings = get_route_linestrings()
 # Streamlit app
 st.title("MTA Bus Ridership")
 st.sidebar.title("TransitScope Baltimore")
-freq = "Monthly"
-# if freq == "Quarterly":
-#     rides = get_rides_quarterly()
-#     csv = convert_df(rides)
-# else:
-#     rides = get_rides()
-#     csv = convert_df(rides)
-
 # Define the mapping
 title_mapping = {
-    'Monthly': 'Ridership per month',
-    'Quarterly': 'Ridership per quarter'
+    "Monthly": "Ridership per month",
+    "Quarterly": "Ridership per quarter",
 }
-
+freq = "Monthly"
 freq = st.sidebar.selectbox("Choose frequency", ["Monthly", "Quarterly"])
 if freq == "Quarterly":
     rides = get_rides_quarterly()
@@ -97,7 +89,9 @@ else:
 
 
 # Get the title from the mapping
-title = title_mapping.get(freq, 'Ridership per month')  # Default to 'Ridership per month'
+title = title_mapping.get(
+    freq, "Ridership per month"
+)  # Default to 'Ridership per month'
 # Get the top 5 routes from 2023, group by route number and sum the ridership
 top_5_routes = (
     rides[rides["date"] >= datetime(2023, 1, 1)]

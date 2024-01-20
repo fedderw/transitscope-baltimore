@@ -271,8 +271,12 @@ with tab2:
     )
     fig2
     # Create a bar graph comparing the number of boardings at sheltered and unsheltered stops
-    grouped_by_shelter = stops[["shelter", "rider_on"]].groupby("shelter").sum().reset_index()
-    grouped_by_shelter['shelter_text'] = grouped_by_shelter['shelter'].map({True: "Sheltered", False: "Unsheltered"})
+    grouped_by_shelter = (
+        stops[["shelter", "rider_on"]].groupby("shelter").sum().reset_index()
+    )
+    grouped_by_shelter["shelter_text"] = grouped_by_shelter["shelter"].map(
+        {True: "Sheltered", False: "Unsheltered"}
+    )
     fig3 = px.bar(
         grouped_by_shelter,
         y="shelter_text",
@@ -302,7 +306,7 @@ with tab2:
     # Drop geometry column
     route_stop = route_stop.drop(columns=["geometry"])
     # Convert from geodataframe to dataframe
-    
+
     # We need to split on commas and semicolons
     route_stop["routes_served"] = route_stop["routes_served"].str.split(",")
     # st.dataframe(route_stop)
@@ -312,7 +316,7 @@ with tab2:
     route_stop = route_stop.explode("routes_served")
     # st.dataframe(route_stop)
     route_stop["routes_served"] = route_stop["routes_served"].str.strip()
-    
+
     # Dictionary mapping short color codes to their corresponding CityLink route names
     color_to_citylink = {
         "BL": "CityLink Blue",
@@ -331,7 +335,7 @@ with tab2:
         "PR": "CityLink Purple",
         "RD": "CityLink Red",
         "SV": "CityLink Silver",
-        "YW": "CityLink Yellow"
+        "YW": "CityLink Yellow",
     }
 
     # Function to map colors to their full names, keeping unmatched values
@@ -339,13 +343,32 @@ with tab2:
         return color_to_citylink.get(color, color)
 
     # Apply the function to the 'routes_served' column
-    route_stop['routes_served'] = route_stop['routes_served'].apply(map_color_to_citylink)
+    route_stop["routes_served"] = route_stop["routes_served"].apply(
+        map_color_to_citylink
+    )
     # st.dataframe(route_stop)
 
     # Group by route and shelter
-    grouped_by_route_shelter = route_stop[["routes_served","stop_id", "shelter", ]].groupby(["routes_served"]).sum("shelter").reset_index().sort_values(by="shelter", ascending=False)
+    grouped_by_route_shelter = (
+        route_stop[
+            [
+                "routes_served",
+                "stop_id",
+                "shelter",
+            ]
+        ]
+        .groupby(["routes_served"])
+        .sum("shelter")
+        .reset_index()
+        .sort_values(by="shelter", ascending=False)
+    )
     # Rename the columns
-    grouped_by_route_shelter = grouped_by_route_shelter.rename(columns={"routes_served":"route","shelter": "number_of_sheltered_stops"})
+    grouped_by_route_shelter = grouped_by_route_shelter.rename(
+        columns={
+            "routes_served": "route",
+            "shelter": "number_of_sheltered_stops",
+        }
+    )
     # Replace NaN values with 0
     grouped_by_route_shelter = grouped_by_route_shelter.fillna(0)
     # Create a vertical bar chart showing the number of sheltered stops for each route
@@ -377,25 +400,41 @@ with tab2:
         texttemplate="%{x:.0s}",
         textposition="outside",
     )
-    
+
     # Counting sheltered and total stops for each route
-    total_counts = route_stop[["routes_served", "shelter"]].groupby(["routes_served"]).count().reset_index().sort_values(by="shelter", ascending=False)
-    total_counts = total_counts.rename(columns={"routes_served":"route","shelter": "total_stops"})
+    total_counts = (
+        route_stop[["routes_served", "shelter"]]
+        .groupby(["routes_served"])
+        .count()
+        .reset_index()
+        .sort_values(by="shelter", ascending=False)
+    )
+    total_counts = total_counts.rename(
+        columns={"routes_served": "route", "shelter": "total_stops"}
+    )
     # Replace NaN values with 0
     total_counts = total_counts.fillna(0)
 
     # Merging the counts
-    merged_data = pd.merge(grouped_by_route_shelter, total_counts, on="route").reset_index(drop=True)
+    merged_data = pd.merge(
+        grouped_by_route_shelter, total_counts, on="route"
+    ).reset_index(drop=True)
 
     # Calculating the percentage of sheltered stops
-    merged_data["sheltered_percentage"] = merged_data["number_of_sheltered_stops"] / merged_data["total_stops"] * 100
-    merged_data = merged_data.sort_values(by="sheltered_percentage", ascending=False)
+    merged_data["sheltered_percentage"] = (
+        merged_data["number_of_sheltered_stops"]
+        / merged_data["total_stops"]
+        * 100
+    )
+    merged_data = merged_data.sort_values(
+        by="sheltered_percentage", ascending=False
+    )
     # Make sure route names are strings
     merged_data["route"] = merged_data["route"].astype(str)
     # Plotting the graph
-    fig5= px.bar(
+    fig5 = px.bar(
         merged_data,
-        y='route',
+        y="route",
         x="sheltered_percentage",
         color="route",
         color_discrete_map=CITYLINK_COLORS,
@@ -421,18 +460,16 @@ with tab2:
         texttemplate="%{x:.0f}%",
         textposition="outside",
     )
-    fig5.update_yaxes(
-        type='category'
-    )
-    
+    fig5.update_yaxes(type="category")
+
     # Select an option to show the bar graph of sheltered stops by route as a percentage of total stops or as a raw count
     show_as_percentage = st.checkbox("Show as percentage of total stops")
     if show_as_percentage:
         fig5
     else:
         fig4
-    
-    
+
+
 with tab3:
     st.header("Explore Ridership")
     st.write(
