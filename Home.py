@@ -74,12 +74,30 @@ route_linestrings = get_route_linestrings()
 st.title("MTA Bus Ridership")
 st.sidebar.title("TransitScope Baltimore")
 freq = "Monthly"
+# if freq == "Quarterly":
+#     rides = get_rides_quarterly()
+#     csv = convert_df(rides)
+# else:
+#     rides = get_rides()
+#     csv = convert_df(rides)
+
+# Define the mapping
+title_mapping = {
+    'Monthly': 'Ridership per month',
+    'Quarterly': 'Ridership per quarter'
+}
+
+freq = st.sidebar.selectbox("Choose frequency", ["Monthly", "Quarterly"])
 if freq == "Quarterly":
     rides = get_rides_quarterly()
     csv = convert_df(rides)
 else:
     rides = get_rides()
     csv = convert_df(rides)
+
+
+# Get the title from the mapping
+title = title_mapping.get(freq, 'Ridership per month')  # Default to 'Ridership per month'
 # Get the top 5 routes from 2023, group by route number and sum the ridership
 top_5_routes = (
     rides[rides["date"] >= datetime(2023, 1, 1)]
@@ -95,13 +113,7 @@ route_numbers = st.sidebar.multiselect(
     list(rides["route"].unique()),
     default=top_5_routes,
 )
-freq = st.sidebar.selectbox("Choose frequency", ["Monthly", "Quarterly"])
-if freq == "Quarterly":
-    rides = get_rides_quarterly()
-    csv = convert_df(rides)
-else:
-    rides = get_rides()
-    csv = convert_df(rides)
+
 highlight_routes = st.sidebar.checkbox(
     "Show unselected bus routes on map", value=False
 )
@@ -118,13 +130,17 @@ if route_numbers:
         end_date=datetime(2023, 12, 31),
         y_axis_zero=True,
     )
+    # Use the title in the plot
+    fig.update_layout(
+        title=title,
+        yaxis_title=title,
+    )
     # Add a toggle to set y-axis to start at 0
     fig2 = plot_recovery_over_this_quarter(
         rides,
         # Do the top 5 routes from 2022
         route_numbers=route_numbers,
     )
-
     col1, col2 = st.columns([3, 2])
     with col1:
         st.plotly_chart(
