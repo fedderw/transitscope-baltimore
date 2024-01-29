@@ -1,7 +1,7 @@
 # TransitScope Baltimore
 ## MTA Bus Ridership App
 
-This [Streamlit app]([url](https://transitscope-baltimore.streamlit.app/)) displays MTA bus ridership data for the Baltimore area. The app provides visualizations of the ridership data and allows users to select specific bus routes to analyze.
+This [Streamlit app](https://transitscope-baltimore.streamlit.app/) displays MTA bus ridership data for the Baltimore area. The app provides visualizations of the ridership data and allows users to select specific bus routes to analyze.
 
 ### Data Sources
 
