@@ -11,4 +11,4 @@ st_annotated_text==4.0.1
 streamlit==1.29.0
 streamlit_extras==0.3.6
 streamlit_folium==0.18.0
-streamlit_plotly_mapboxEvents>=0.0.4
+streamlit_plotly_mapboxEvents
